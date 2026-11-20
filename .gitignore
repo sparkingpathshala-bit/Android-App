@@ -1,0 +1,29 @@
+# Built Gradle files
+.gradle/
+build/
+app/build/
+
+# Local configuration file (contains local paths to SDKs, etc.)
+local.properties
+
+# Log files
+*.log
+
+# Android Studio / IntelliJ IDEA files
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Keystore files (should not be checked into Git for security reasons)
+*.jks
+*.keystore
+
+# Compiled APKs/AABs (built outputs)
+*.apk
+*.ap_
+*.aab
+
+# OS generated files
+.DS_Store
+Thumbs.db
