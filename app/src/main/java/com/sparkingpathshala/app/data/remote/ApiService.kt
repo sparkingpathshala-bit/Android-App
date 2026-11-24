@@ -345,7 +345,18 @@ interface ApiService {
     suspend fun getFallbackBankStats(
         @Header("Authorization") token: String
     ): Map<String, Any>
+
+    @GET("api/app-version")
+    suspend fun getAppVersion(): AppVersionResponse
 }
+
+data class AppVersionResponse(
+    @SerializedName("latestVersionCode") val latestVersionCode: Int = 31,
+    @SerializedName("latestVersionName") val latestVersionName: String = "3.1",
+    @SerializedName("minSupportedVersionCode") val minSupportedVersionCode: Int = 20,
+    @SerializedName("forceUpdate") val forceUpdate: Boolean = false,
+    @SerializedName("sessionLifetimeDays") val sessionLifetimeDays: Int = 7
+)
 
 
 data class InitializePaymentRequest(

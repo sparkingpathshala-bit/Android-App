@@ -669,10 +669,10 @@ class DashboardViewModel(private val repository: AppRepository) : ViewModel() {
     }
 
     data class AppVersionInfo(
-        val currentVersionCode: Int = 20,
-        val latestVersionCode: Int = 20,
-        val latestVersionName: String = "2.2.2",
-        val releaseDateMillis: Long = 1759104000000L, // 29 Sep 2026
+        val currentVersionCode: Int = com.sparkingpathshala.app.BuildConfig.VERSION_CODE,
+        val latestVersionCode: Int = com.sparkingpathshala.app.BuildConfig.VERSION_CODE,
+        val latestVersionName: String = com.sparkingpathshala.app.BuildConfig.VERSION_NAME,
+        val releaseDateMillis: Long = 1795824000000L, // 2026/2027 standard
         val status: ForceUpdateStatus = ForceUpdateStatus.UP_TO_DATE,
         val daysRemainingInGrace: Int = 7
     )
@@ -681,12 +681,13 @@ class DashboardViewModel(private val repository: AppRepository) : ViewModel() {
     val versionInfo: StateFlow<AppVersionInfo> = _versionInfo.asStateFlow()
 
     fun checkAppVersion(currentCode: Int) {
-        val latestCode = 20
-        val releaseDate = 1759104000000L // 29 Sep 2026
-        val sevenDaysMs = 7L * 24 * 60 * 60 * 1000
+        val latestCode = com.sparkingpathshala.app.BuildConfig.VERSION_CODE
+        val latestName = com.sparkingpathshala.app.BuildConfig.VERSION_NAME
+        val releaseDate = 1795824000000L
+        val sevenDaysMs = 7L * 24 * 60 * 60 * 1000L
         val now = System.currentTimeMillis()
-        val elapsed = now - releaseDate
-        val daysRemaining = ((sevenDaysMs - elapsed) / (24 * 60 * 60 * 1000)).coerceAtLeast(0).toInt()
+        val elapsed = (now - releaseDate).coerceAtLeast(0L)
+        val daysRemaining = ((sevenDaysMs - elapsed) / (24 * 60 * 60 * 1000L)).coerceAtLeast(0).toInt()
 
         val status = when {
             currentCode >= latestCode -> ForceUpdateStatus.UP_TO_DATE
@@ -697,11 +698,33 @@ class DashboardViewModel(private val repository: AppRepository) : ViewModel() {
         _versionInfo.value = AppVersionInfo(
             currentVersionCode = currentCode,
             latestVersionCode = latestCode,
-            latestVersionName = "2.2.2",
+            latestVersionName = latestName,
             releaseDateMillis = releaseDate,
             status = status,
             daysRemainingInGrace = daysRemaining
         )
+
+        // Remote sync against backend version policy
+        viewModelScope.launch(Dispatchers.IO) {
+            val res = repository.checkAppVersion()
+            res.onSuccess { remote ->
+                val remoteCode = remote.latestVersionCode
+                val remoteName = remote.latestVersionName
+                val remoteStatus = when {
+                    currentCode >= remoteCode -> ForceUpdateStatus.UP_TO_DATE
+                    remote.forceUpdate -> ForceUpdateStatus.FORCE_UPDATE_REQUIRED
+                    else -> ForceUpdateStatus.GRACE_PERIOD_ACTIVE
+                }
+                _versionInfo.value = AppVersionInfo(
+                    currentVersionCode = currentCode,
+                    latestVersionCode = remoteCode,
+                    latestVersionName = remoteName,
+                    releaseDateMillis = releaseDate,
+                    status = remoteStatus,
+                    daysRemainingInGrace = daysRemaining
+                )
+            }
+        }
     }
 
     init {

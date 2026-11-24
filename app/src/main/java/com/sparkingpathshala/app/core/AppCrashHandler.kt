@@ -26,6 +26,7 @@ class AppCrashHandler(
         private const val TAG = "AppCrashHandler"
         private const val CRASH_LOG_FILE = "crash_reports.log"
         private const val MAX_LOG_SIZE_BYTES = 512 * 1024L // 512 KB log cap
+        @Volatile private var lastCrashTime = 0L
 
         fun install(context: Context) {
             val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
@@ -56,10 +57,32 @@ class AppCrashHandler(
             logCrash(thread, throwable)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to write crash dump", e)
-        } finally {
-            // Forward to default platform handler to finish cleanly
-            defaultHandler?.uncaughtException(thread, throwable)
         }
+
+        val now = System.currentTimeMillis()
+        val isCrashLoop = (now - lastCrashTime) < 4000L
+        lastCrashTime = now
+
+        // Prevent abrupt app termination: Gracefully recover activity if not in a tight restart loop
+        if (!isCrashLoop) {
+            try {
+                val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
+                    addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    putExtra("recovered_from_crash", true)
+                }
+                if (launchIntent != null) {
+                    context.startActivity(launchIntent)
+                    android.os.Process.killProcess(android.os.Process.myPid())
+                    System.exit(10)
+                    return
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to launch recovery intent", e)
+            }
+        }
+
+        // Forward to default platform handler to finish cleanly on repeat crashes
+        defaultHandler?.uncaughtException(thread, throwable)
     }
 
     private fun logCrash(thread: Thread, throwable: Throwable) {

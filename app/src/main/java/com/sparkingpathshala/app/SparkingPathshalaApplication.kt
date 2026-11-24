@@ -89,25 +89,19 @@ class SparkingPathshalaApplication : Application() {
                 val isAuthEndpoint = path.contains("api/auth/login") || path.contains("api/auth/signup")
 
                 if (hasAuth && !isAuthEndpoint) {
-                    // Only wipe session and trigger sessionExpiredEvent if user's local session exceeds 7 days (prevents premature 1-2 day relogin)
+                    // Centralized 401 auto-logout: Server rejected token (expired after 7 days, revoked, or password updated)
                     applicationScope.launch {
                         try {
-                            val user = database.userDao().getUserDirect()
-                            val now = System.currentTimeMillis()
-                            val loginTime = user?.loginTimestamp ?: 0L
-                            val isPastSevenDays = (now - loginTime) > (7L * 24 * 60 * 60 * 1000L)
-                            if (isPastSevenDays) {
-                                database.userDao().clearUser()
-                                database.feeDao().clearFees()
-                                database.resultDao().clearResults()
-                                database.attendanceDao().clearAttendance()
-                                database.studyMaterialDao().clearNonDownloadedMaterials()
-                                database.quizDao().clearQuizzes()
-                                database.questionDao().clearQuestions()
-                                database.homeworkDao().clearNonDownloadedHomework()
-                                database.notificationDao().clearNotifications()
-                                com.sparkingpathshala.app.core.AuthSessionManager.notifySessionExpired()
-                            }
+                            database.userDao().clearUser()
+                            database.feeDao().clearFees()
+                            database.resultDao().clearResults()
+                            database.attendanceDao().clearAttendance()
+                            database.studyMaterialDao().clearNonDownloadedMaterials()
+                            database.quizDao().clearQuizzes()
+                            database.questionDao().clearQuestions()
+                            database.homeworkDao().clearNonDownloadedHomework()
+                            database.notificationDao().clearNotifications()
+                            com.sparkingpathshala.app.core.AuthSessionManager.notifySessionExpired()
                         } catch (e: Exception) {
                             // Suppress
                         }

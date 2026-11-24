@@ -196,6 +196,7 @@ interface AppRepository {
     suspend fun syncNotifications(): Result<Unit>
     suspend fun generatePracticeQuiz(subject: String, numQuestions: Int = 10): Result<ActiveQuizResponse>
     suspend fun getQuizHistory(): Result<List<QuizHistoryItem>>
+    suspend fun checkAppVersion(): Result<com.sparkingpathshala.app.data.remote.AppVersionResponse> = Result.success(com.sparkingpathshala.app.data.remote.AppVersionResponse())
 }
 
 
@@ -276,8 +277,7 @@ class AppRepositoryImpl(
 
     override fun getUser(): Flow<UserEntity?> = userDao.getUserFlow().map { user ->
         if (user != null) {
-            val maxInactivityMs = 7L * 24 * 60 * 60 * 1000L // Exactly 7 days of inactivity (auto-logout policy)
-            val rollingRefreshMs = 1L * 60 * 60 * 1000 // Refresh active timestamp every hour
+            val maxSessionAgeMs = 7L * 24 * 60 * 60 * 1000L // Exactly 7 days (auto-logout policy)
             val now = System.currentTimeMillis()
 
             // Heal uninitialized or legacy timestamp (e.g. 0L from pre-migration records)
@@ -292,21 +292,13 @@ class AppRepositoryImpl(
                 user.loginTimestamp
             }
 
-            if (user.role != "guest" && (now - effectiveTimestamp > maxInactivityMs)) {
-                // Clear DB session after 14 days of complete inactivity
+            if (user.role != "guest" && (now - effectiveTimestamp > maxSessionAgeMs)) {
+                // Clear DB session strictly after 7 days of token issuance
                 repositoryScope.launch {
                     logout()
                 }
                 null
             } else {
-                // Sliding window: keep active sessions alive indefinitely as long as app opened within 14 days
-                if (user.role != "guest" && (now - effectiveTimestamp > rollingRefreshMs)) {
-                    repositoryScope.launch {
-                        try {
-                            userDao.insertUser(user.copy(loginTimestamp = now))
-                        } catch (_: Exception) {}
-                    }
-                }
                 user.copy(
                     loginTimestamp = effectiveTimestamp,
                     token = com.sparkingpathshala.app.security.SecurityUtils.decrypt(user.token)
@@ -2010,6 +2002,15 @@ class AppRepositoryImpl(
             if (token.isEmpty()) return@withContext Result.success(emptyList())
             val res = api.getQuizHistory(token)
             Result.success(res.history)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun checkAppVersion(): Result<com.sparkingpathshala.app.data.remote.AppVersionResponse> = withContext(Dispatchers.IO) {
+        try {
+            val response = api.getAppVersion()
+            Result.success(response)
         } catch (e: Exception) {
             Result.failure(e)
         }

@@ -163,9 +163,21 @@ class MainActivity : ComponentActivity() {
                             }
                         }
 
-                        // Centralized 401 Session Expiration listener
+                        // Centralized 401 Session Expiration listener & Crash Recovery Notification
                         LaunchedEffect(Unit) {
+                            if (intent.getBooleanExtra("recovered_from_crash", false)) {
+                                android.widget.Toast.makeText(
+                                    context,
+                                    "Session restored safely.",
+                                    android.widget.Toast.LENGTH_SHORT
+                                ).show()
+                            }
                             com.sparkingpathshala.app.core.AuthSessionManager.sessionExpiredEvent.collect {
+                                android.widget.Toast.makeText(
+                                    context,
+                                    "Your session has expired (7-day security limit). Please log in again.",
+                                    android.widget.Toast.LENGTH_LONG
+                                ).show()
                                 val currentRoute = navController.currentDestination?.route
                                 if (currentRoute != Screen.Login.route && currentRoute != Screen.Signup.route) {
                                     navController.navigate(Screen.Login.route) {

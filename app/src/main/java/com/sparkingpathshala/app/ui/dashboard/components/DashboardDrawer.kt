@@ -123,6 +123,8 @@ fun DashboardDrawerContent(
                 .verticalScroll(rememberScrollState())
                 .navigationBarsPadding()
         ) {
+            DrawerSectionHeader("NAVIGATION")
+
             NavigationDrawerItem(
                 label = { Text("Home / Dashboard", fontWeight = FontWeight.Medium) },
                 selected = currentTab == BottomBarScreen.HOME,
@@ -136,6 +138,8 @@ fun DashboardDrawerContent(
             )
 
             if (user.isAdmin()) {
+                DrawerSectionHeader("ADMINISTRATION")
+
                 NavigationDrawerItem(
                     label = { Text("Manage Students", fontWeight = FontWeight.Medium) },
                     selected = false,
@@ -258,6 +262,8 @@ fun DashboardDrawerContent(
             }
 
             if (user.isStudent()) {
+                DrawerSectionHeader("ACADEMIC HUB")
+
                 NavigationDrawerItem(
                     label = { Text("Homework & Tasks", fontWeight = FontWeight.Medium) },
                     selected = currentTab == BottomBarScreen.HOMEWORK,
@@ -307,6 +313,8 @@ fun DashboardDrawerContent(
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
             }
+
+            DrawerSectionHeader("LEARNING & RESOURCES")
 
             NavigationDrawerItem(
                 label = { Text("Notifications", fontWeight = FontWeight.Medium) },
@@ -370,6 +378,8 @@ fun DashboardDrawerContent(
                 modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
             )
 
+            DrawerSectionHeader("ACCOUNT & SETTINGS")
+
             NavigationDrawerItem(
                 label = { Text("My Profile", fontWeight = FontWeight.Medium) },
                 selected = currentTab == BottomBarScreen.PROFILE,
@@ -421,4 +431,16 @@ fun DashboardDrawerContent(
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
+}
+
+@Composable
+private fun DrawerSectionHeader(title: String) {
+    Text(
+        text = title,
+        fontSize = 11.sp,
+        fontWeight = FontWeight.Bold,
+        letterSpacing = 1.sp,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(start = 28.dp, top = 14.dp, bottom = 6.dp)
+    )
 }

@@ -541,6 +541,7 @@ class RepositoryTest {
         override suspend fun getQuizHistory(token: String): QuizHistoryResponse = QuizHistoryResponse(quizHistoryList.toList())
         override suspend fun refreshFallbackBank(token: String, request: Map<String, @JvmSuppressWildcards Any>): SimpleMessageResponse = SimpleMessageResponse("Success")
         override suspend fun getFallbackBankStats(token: String): Map<String, Any> = emptyMap()
+        override suspend fun getAppVersion(): AppVersionResponse = AppVersionResponse()
     }
 
     @Test
@@ -2412,5 +2413,88 @@ class RepositoryTest {
         // Collecting homeworkList must not throw uncaught SQLiteException
         val hwList = viewModel.homeworkList.first()
         assertTrue("When Room throws an SQLiteException, homeworkList must safely catch it and emit empty list", hwList.isEmpty())
+    }
+
+    @Test
+    fun testAutoLogoutAfterSevenDays() = runBlocking {
+        val fakeUserDao = FakeUserDao()
+        val eightDaysAgo = System.currentTimeMillis() - (8L * 24 * 60 * 60 * 1000L)
+        fakeUserDao.insertUser(
+            UserEntity(
+                id = "expired_student",
+                name = "Test Student",
+                email = "student@test.com",
+                rollNo = "SP-01",
+                classLevel = "Class 10",
+                token = SecurityUtils.encrypt("test_token"),
+                role = "student",
+                loginTimestamp = eightDaysAgo
+            )
+        )
+        val mockDb = mock(AppDatabase::class.java)
+        `when`(mockDb.userDao()).thenReturn(fakeUserDao)
+        `when`(mockDb.feeDao()).thenReturn(mock(FeeDao::class.java))
+        `when`(mockDb.resultDao()).thenReturn(mock(ResultDao::class.java))
+        `when`(mockDb.attendanceDao()).thenReturn(mock(AttendanceDao::class.java))
+        `when`(mockDb.studyMaterialDao()).thenReturn(mock(StudyMaterialDao::class.java))
+        `when`(mockDb.quizDao()).thenReturn(mock(QuizDao::class.java))
+        `when`(mockDb.questionDao()).thenReturn(mock(QuestionDao::class.java))
+        `when`(mockDb.homeworkDao()).thenReturn(mock(HomeworkDao::class.java))
+        `when`(mockDb.guestTelemetryDao()).thenReturn(mock(GuestTelemetryDao::class.java))
+        `when`(mockDb.notificationDao()).thenReturn(mock(NotificationDao::class.java))
+
+        val repo = AppRepositoryImpl(mockDb, FakeApiService(), OkHttpClient())
+        val user = repo.getUser().first()
+        assertNull("A session older than 7 days must be automatically expired and emit null", user)
+    }
+
+    @Test
+    fun testSessionKeptWithinSevenDays() = runBlocking {
+        val fakeUserDao = FakeUserDao()
+        val twoDaysAgo = System.currentTimeMillis() - (2L * 24 * 60 * 60 * 1000L)
+        fakeUserDao.insertUser(
+            UserEntity(
+                id = "active_student",
+                name = "Test Student",
+                email = "student@test.com",
+                rollNo = "SP-01",
+                classLevel = "Class 10",
+                token = SecurityUtils.encrypt("test_token"),
+                role = "student",
+                loginTimestamp = twoDaysAgo
+            )
+        )
+        val mockDb = mock(AppDatabase::class.java)
+        `when`(mockDb.userDao()).thenReturn(fakeUserDao)
+        `when`(mockDb.feeDao()).thenReturn(mock(FeeDao::class.java))
+        `when`(mockDb.resultDao()).thenReturn(mock(ResultDao::class.java))
+        `when`(mockDb.attendanceDao()).thenReturn(mock(AttendanceDao::class.java))
+        `when`(mockDb.studyMaterialDao()).thenReturn(mock(StudyMaterialDao::class.java))
+        `when`(mockDb.quizDao()).thenReturn(mock(QuizDao::class.java))
+        `when`(mockDb.questionDao()).thenReturn(mock(QuestionDao::class.java))
+        `when`(mockDb.homeworkDao()).thenReturn(mock(HomeworkDao::class.java))
+        `when`(mockDb.guestTelemetryDao()).thenReturn(mock(GuestTelemetryDao::class.java))
+        `when`(mockDb.notificationDao()).thenReturn(mock(NotificationDao::class.java))
+
+        val repo = AppRepositoryImpl(mockDb, FakeApiService(), OkHttpClient())
+        val user = repo.getUser().first()
+        assertNotNull("A session within 7 days must remain active", user)
+        assertEquals("active_student", user?.id)
+        assertEquals("test_token", user?.token)
+    }
+
+    @Test
+    fun testCheckAppVersionApi() = runBlocking {
+        val mockDb = mock(AppDatabase::class.java)
+        val fakeApi = FakeApiService()
+        val repo = AppRepositoryImpl(mockDb, fakeApi, OkHttpClient())
+
+        val result = repo.checkAppVersion()
+        assertTrue(result.isSuccess)
+        val version = result.getOrNull()
+        assertNotNull(version)
+        assertEquals(31, version?.latestVersionCode)
+        assertEquals("3.1", version?.latestVersionName)
+        assertEquals(7, version?.sessionLifetimeDays)
     }
 }
