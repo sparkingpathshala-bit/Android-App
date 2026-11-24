@@ -116,9 +116,9 @@ fun HomeTabContent(
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
     val prefs = remember { context.getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE) }
-    var noticeTitle by remember { mutableStateOf(prefs.getString("notice_title", "Faculty Notice: Prof. Verma") ?: "Faculty Notice: Prof. Verma") }
-    var noticeBody by remember { mutableStateOf(prefs.getString("notice_body", "Physics revision test on Electromagnetism moved to Thursday 4:00 PM.") ?: "Physics revision test on Electromagnetism moved to Thursday 4:00 PM.") }
-    var noticeNote by remember { mutableStateOf(prefs.getString("notice_note", "✍️ Bring your NCERT formula sheet!") ?: "✍️ Bring your NCERT formula sheet!") }
+    var noticeTitle by remember { mutableStateOf(prefs.getString("notice_title", "Admissions Open 2027: CBSE Classes 9–12") ?: "Admissions Open 2027: CBSE Classes 9–12") }
+    var noticeBody by remember { mutableStateOf(prefs.getString("notice_body", "Science & Maths batches under Er. Sajjan Kumar Mallik (B.Tech Gold Medalist). Batch cap strictly 20 students.") ?: "Science & Maths batches under Er. Sajjan Kumar Mallik (B.Tech Gold Medalist). Batch cap strictly 20 students.") }
+    var noticeNote by remember { mutableStateOf(prefs.getString("notice_note", "📍 Campus: Dheeraj Nagar, Atmadpur, Faridabad • Call: +91 99994 70824") ?: "📍 Campus: Dheeraj Nagar, Atmadpur, Faridabad • Call: +91 99994 70824") }
     var showNoticeBanner by remember { mutableStateOf(!prefs.getBoolean("notice_dismissed_key", false)) }
     var showEditNoticeDialog by remember { mutableStateOf(false) }
 
@@ -506,6 +506,134 @@ fun HomeTabContent(
                         contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp)
                     ) {
                         Text("Join", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // Official Canva 2027 Admissions Showcase Card
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp),
+                shape = RoundedCornerShape(18.dp),
+                color = Color.White,
+                border = BorderStroke(1.dp, Color(0xFFFDE68A)),
+                shadowElevation = 2.dp
+            ) {
+                Column(modifier = Modifier.padding(14.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = Color(0xFFFEF3C7),
+                            border = BorderStroke(0.5.dp, Color(0xFFF59E0B))
+                        ) {
+                            Text(
+                                text = "🎓 ADMISSIONS OPEN 2027",
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = Color(0xFFB45309),
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                            )
+                        }
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = PrimaryBlue.copy(alpha = 0.08f)
+                        ) {
+                            Text(
+                                text = "Batch Cap: 20 Students",
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = PrimaryBlue,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(64.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(12.dp))
+                        ) {
+                            androidx.compose.foundation.Image(
+                                painter = androidx.compose.ui.res.painterResource(id = com.sparkingpathshala.app.R.drawable.banner_admissions_canva),
+                                contentDescription = "Sparking Pathshala Admissions Flyer",
+                                contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(12.dp))
+
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "CBSE Classes 9–12 • Science & Maths",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "Under Er. Sajjan Kumar Mallik (B.Tech Gold Medalist)",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = PrimaryBlue
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "Campus: Dheeraj Nagar, Atmadpur, Faridabad",
+                                fontSize = 10.sp,
+                                color = Color(0xFF64748B)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedButton(
+                            onClick = {
+                                try {
+                                    val intent = android.content.Intent(android.content.Intent.ACTION_DIAL).apply {
+                                        data = "tel:+919999470824".toUri()
+                                    }
+                                    context.startActivity(intent)
+                                } catch (_: Exception) {}
+                            },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(10.dp),
+                            contentPadding = PaddingValues(vertical = 8.dp),
+                            border = BorderStroke(1.dp, PrimaryBlue)
+                        ) {
+                            Icon(Icons.Default.Phone, contentDescription = null, modifier = Modifier.size(14.dp), tint = PrimaryBlue)
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Call Campus", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = PrimaryBlue)
+                        }
+
+                        Button(
+                            onClick = onNavigateToAdminEnquiries,
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue),
+                            shape = RoundedCornerShape(10.dp),
+                            contentPadding = PaddingValues(vertical = 8.dp)
+                        ) {
+                            Text("Enquire Now →", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        }
                     }
                 }
             }

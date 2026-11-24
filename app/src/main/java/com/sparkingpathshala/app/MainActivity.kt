@@ -816,9 +816,9 @@ fun SparkingSplashScreen(modifier: Modifier = Modifier) {
                     border = androidx.compose.foundation.BorderStroke(1.dp, PrimaryBlue.copy(alpha = 0.15f))
                 ) {
                     Text(
-                        text = "Igniting Minds • Empowering Future",
+                        text = "Ignite Minds • Shape Futures",
                         fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        fontWeight = FontWeight.Bold,
                         color = PrimaryBlue,
                         modifier = Modifier.padding(horizontal = 14.dp, vertical = 5.dp),
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -844,12 +844,12 @@ fun SparkingSplashScreen(modifier: Modifier = Modifier) {
             }
         }
 
-        // Subtitle bottom footer
+        // Subtitle bottom footer (Official Canva Brand Tagline)
         Text(
-            text = "Excellence in Learning",
+            text = "Focused today. Achieving tomorrow. • January 2027 Admissions Open",
             fontSize = 11.sp,
-            fontWeight = FontWeight.Medium,
-            color = Color(0xFF94A3B8),
+            fontWeight = FontWeight.SemiBold,
+            color = Color(0xFF64748B),
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 36.dp)

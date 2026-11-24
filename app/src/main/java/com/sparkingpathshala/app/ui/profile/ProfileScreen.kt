@@ -1,6 +1,7 @@
 package com.sparkingpathshala.app.ui.profile
 
 import android.widget.Toast
+import androidx.core.net.toUri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -288,6 +289,32 @@ fun ProfileScreen(
                             }
                         }
                     )
+
+                    HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+
+                    ListItem(
+                        headlineContent = { Text("Campus Address", fontSize = 14.sp, fontWeight = FontWeight.Medium) },
+                        supportingContent = { Text("Dheeraj Nagar, Atmadpur, Faridabad, Haryana", fontSize = 11.sp) },
+                        leadingContent = { Icon(Icons.Default.LocationOn, contentDescription = null, tint = PrimaryBlue) }
+                    )
+
+                    HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+
+                    ListItem(
+                        headlineContent = { Text("Campus Admissions Helpline", fontSize = 14.sp, fontWeight = FontWeight.Medium) },
+                        supportingContent = { Text("+91 99994 70824 • Er. Sajjan Kumar Mallik", fontSize = 11.sp) },
+                        leadingContent = { Icon(Icons.Default.Phone, contentDescription = null, tint = PrimaryBlue) },
+                        modifier = Modifier.clickable {
+                            try {
+                                val intent = android.content.Intent(android.content.Intent.ACTION_DIAL).apply {
+                                    data = android.net.Uri.parse("tel:+919999470824")
+                                }
+                                context.startActivity(intent)
+                            } catch (_: Exception) {}
+                        }
+                    )
+
+                    HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
                 }
             }
         } else {
@@ -609,6 +636,32 @@ fun ProfileScreen(
                             }
                         }
                     )
+
+                    HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+
+                    ListItem(
+                        headlineContent = { Text("Campus Address", fontSize = 14.sp, fontWeight = FontWeight.Medium) },
+                        supportingContent = { Text("Dheeraj Nagar, Atmadpur, Faridabad, Haryana", fontSize = 11.sp) },
+                        leadingContent = { Icon(Icons.Default.LocationOn, contentDescription = null, tint = PrimaryBlue) }
+                    )
+
+                    HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+
+                    ListItem(
+                        headlineContent = { Text("Campus Admissions Helpline", fontSize = 14.sp, fontWeight = FontWeight.Medium) },
+                        supportingContent = { Text("+91 99994 70824 • Er. Sajjan Kumar Mallik", fontSize = 11.sp) },
+                        leadingContent = { Icon(Icons.Default.Phone, contentDescription = null, tint = PrimaryBlue) },
+                        modifier = Modifier.clickable {
+                            try {
+                                val intent = android.content.Intent(android.content.Intent.ACTION_DIAL).apply {
+                                    data = android.net.Uri.parse("tel:+919999470824")
+                                }
+                                context.startActivity(intent)
+                            } catch (_: Exception) {}
+                        }
+                    )
+
+                    HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
 
                     HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
 
