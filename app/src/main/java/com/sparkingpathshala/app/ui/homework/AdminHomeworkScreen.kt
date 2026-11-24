@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import com.sparkingpathshala.app.data.local.HomeworkEntity
 import com.sparkingpathshala.app.ui.dashboard.DashboardViewModel
 import com.sparkingpathshala.app.ui.ondemand.getUriFileName
+import com.sparkingpathshala.app.ui.common.EmptyStateView
 import com.sparkingpathshala.app.ui.theme.PrimaryBlue
 import com.sparkingpathshala.app.ui.theme.SecondaryGold
 
@@ -165,14 +166,16 @@ fun AdminHomeworkScreen(
 
             // List
             if (filteredList.isEmpty()) {
-                Box(
+                EmptyStateView(
+                    icon = Icons.Default.UploadFile,
+                    title = "No Homework Uploaded",
+                    subtitle = "No homework or assignments uploaded for $selectedClassFilter yet.",
+                    actionLabel = "New Homework",
+                    onAction = { showUploadDialog = true },
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(32.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("No homework/assignment uploaded for $selectedClassFilter", color = Color.Gray)
-                }
+                        .padding(32.dp)
+                )
             } else {
                 val uniqueFilteredList = remember(filteredList) {
                     filteredList.distinctBy { it.id }
@@ -188,8 +191,9 @@ fun AdminHomeworkScreen(
                         val isAssignment = rawTitle.startsWith("[Assignment]", ignoreCase = true) || rawDesc.contains("Assignment", ignoreCase = true)
                         Card(
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(16.dp),
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
                             elevation = CardDefaults.cardElevation(2.dp)
                         ) {
                             Column(modifier = Modifier.padding(14.dp)) {

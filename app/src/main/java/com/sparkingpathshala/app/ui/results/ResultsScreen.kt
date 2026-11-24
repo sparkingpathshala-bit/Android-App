@@ -1,7 +1,4 @@
 package com.sparkingpathshala.app.ui.results
-// [Backend linked] getQuizHistory() in AppRepository feeds quiz attempt history here.
-// Wire: viewModel.loadQuizHistory() → repository.getQuizHistory(studentId)
-
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -24,7 +21,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sparkingpathshala.app.ui.dashboard.DashboardViewModel
+import com.sparkingpathshala.app.ui.common.EmptyStateView
+import com.sparkingpathshala.app.ui.theme.PrimaryBlue
 import com.sparkingpathshala.app.ui.theme.SecondaryGold
+import com.sparkingpathshala.app.ui.theme.SparkingIconBox
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -82,7 +82,7 @@ fun ResultsScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF0F0F12),
+                    containerColor = PrimaryBlue,
                     titleContentColor = Color.White,
                     navigationIconContentColor = Color.White
                 )
@@ -92,43 +92,44 @@ fun ResultsScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFF0F0F12))
+                .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
         ) {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 20.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp),
-                contentPadding = PaddingValues(bottom = 24.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(top = 16.dp, bottom = 32.dp)
             ) {
                 // Welcome and class info header
                 item {
-                    Column(modifier = Modifier.padding(top = 10.dp)) {
+                    Column {
                         Text(
                             text = "Welcome back, ${user?.name ?: "Student"}",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = "Class: ${user?.classLevel ?: "Class 10"} | Student ID: ${user?.rollNo ?: "SP-000"} | ",
+                                text = "Class: ${user?.classLevel ?: "Class 10"} • Roll: ${user?.rollNo ?: "SP-000"} • ",
                                 fontSize = 12.sp,
-                                color = Color.Gray
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
-                            Text(
-                                text = "Status: ",
-                                fontSize = 12.sp,
-                                color = Color.Gray
-                            )
-                            Text(
-                                text = "Active",
-                                fontSize = 12.sp,
-                                color = Color(0xFF4CAF50),
-                                fontWeight = FontWeight.Bold
-                            )
+                            Surface(
+                                shape = RoundedCornerShape(4.dp),
+                                color = Color(0xFFDCFCE7)
+                            ) {
+                                Text(
+                                    text = "ACTIVE",
+                                    fontSize = 10.sp,
+                                    color = Color(0xFF15803D),
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                )
+                            }
                         }
                     }
                 }
@@ -138,8 +139,9 @@ fun ResultsScreen(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFF16161B)),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color.Gray.copy(alpha = 0.15f))
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
                         Column(
                             modifier = Modifier.padding(20.dp),
@@ -147,15 +149,15 @@ fun ResultsScreen(
                         ) {
                             Text(
                                 text = "Overall Performance",
-                                fontSize = 15.sp,
+                                fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = SecondaryGold
+                                color = MaterialTheme.colorScheme.primary
                             )
 
                             Text(
-                                text = "Real-time visualization mapping academic exam percentages against attendance ratios to track overall consistency.",
+                                text = "Real-time visualization mapping academic exam percentages against attendance consistency.",
                                 fontSize = 12.sp,
-                                color = Color.Gray
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
 
                             Row(
@@ -170,29 +172,29 @@ fun ResultsScreen(
                                 ) {
                                     Box(
                                         contentAlignment = Alignment.Center,
-                                        modifier = Modifier.size(76.dp)
+                                        modifier = Modifier.size(80.dp)
                                     ) {
                                         CircularProgressIndicator(
                                             progress = { attendancePercentage / 100f },
-                                            color = SecondaryGold,
-                                            trackColor = Color.DarkGray.copy(alpha = 0.5f),
-                                            strokeWidth = 6.dp,
+                                            color = Color(0xFF10B981),
+                                            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                            strokeWidth = 7.dp,
                                             modifier = Modifier.fillMaxSize()
                                         )
                                         Text(
                                             text = "$attendancePercentage%",
-                                            color = Color.White,
+                                            color = MaterialTheme.colorScheme.onSurface,
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 16.sp
                                         )
                                     }
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Text(
-                                        text = "Overall Attendance Ratio",
-                                        color = Color.Gray,
+                                        text = "Attendance Ratio",
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         fontSize = 11.sp,
                                         textAlign = TextAlign.Center,
-                                        fontWeight = FontWeight.Medium
+                                        fontWeight = FontWeight.SemiBold
                                     )
                                 }
 
@@ -203,29 +205,29 @@ fun ResultsScreen(
                                 ) {
                                     Box(
                                         contentAlignment = Alignment.Center,
-                                        modifier = Modifier.size(76.dp)
+                                        modifier = Modifier.size(80.dp)
                                     ) {
                                         CircularProgressIndicator(
                                             progress = { averageScore / 100f },
-                                            color = SecondaryGold,
-                                            trackColor = Color.DarkGray.copy(alpha = 0.5f),
-                                            strokeWidth = 6.dp,
+                                            color = PrimaryBlue,
+                                            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                            strokeWidth = 7.dp,
                                             modifier = Modifier.fillMaxSize()
                                         )
                                         Text(
                                             text = "$averageScore%",
-                                            color = Color.White,
+                                            color = MaterialTheme.colorScheme.onSurface,
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 16.sp
                                         )
                                     }
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Text(
-                                        text = "Academic Avg Score",
-                                        color = Color.Gray,
+                                        text = "Academic Score",
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         fontSize = 11.sp,
                                         textAlign = TextAlign.Center,
-                                        fontWeight = FontWeight.Medium
+                                        fontWeight = FontWeight.SemiBold
                                     )
                                 }
                             }
@@ -244,24 +246,24 @@ fun ResultsScreen(
                             text = "Weekly Test Results",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = MaterialTheme.colorScheme.onBackground
                         )
 
                         // Dropdown filter box
                         Box {
                             Surface(
                                 shape = RoundedCornerShape(8.dp),
-                                color = Color(0xFF16161B),
-                                border = androidx.compose.foundation.BorderStroke(1.dp, Color.Gray.copy(alpha = 0.3f)),
+                                color = MaterialTheme.colorScheme.surface,
+                                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
                                 modifier = Modifier.clickable { expandedMonth = true }
                             ) {
                                 Row(
                                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(text = selectedMonth, color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                    Text(text = selectedMonth, color = MaterialTheme.colorScheme.onSurface, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Icon(Icons.Default.ArrowDropDown, contentDescription = null, tint = SecondaryGold, modifier = Modifier.size(16.dp))
+                                    Icon(Icons.Default.ArrowDropDown, contentDescription = null, tint = PrimaryBlue, modifier = Modifier.size(16.dp))
                                 }
                             }
 
@@ -286,14 +288,14 @@ fun ResultsScreen(
                 // List of filtered results
                 if (filteredResults.isEmpty()) {
                     item {
-                        Box(
+                        EmptyStateView(
+                            icon = Icons.Default.Assessment,
+                            title = "No Results Found",
+                            subtitle = "No test results recorded for $selectedMonth yet.",
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(120.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(text = "No results found for this month.", color = Color.Gray, fontSize = 13.sp)
-                        }
+                                .padding(vertical = 32.dp)
+                        )
                     }
                 } else {
                     items(filteredResults, key = { it.id }, contentType = { "result" }) { result ->
@@ -301,9 +303,10 @@ fun ResultsScreen(
                         val percentageStr = if (rawPercentage % 1.0 == 0.0) rawPercentage.toInt().toString() else String.format(java.util.Locale.US, "%.1f", rawPercentage)
                         Card(
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFF16161B)),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, Color.Gray.copy(alpha = 0.15f))
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                         ) {
                             Row(
                                 modifier = Modifier
@@ -316,21 +319,21 @@ fun ResultsScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier.weight(1f)
                                 ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(38.dp)
-                                            .background(Color(0xFFE65100).copy(alpha = 0.15f), RoundedCornerShape(8.dp)),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(Icons.Default.Assessment, contentDescription = null, tint = SecondaryGold, modifier = Modifier.size(20.dp))
-                                    }
+                                    SparkingIconBox(
+                                        icon = Icons.Default.Assessment,
+                                        containerColor = PrimaryBlue.copy(alpha = 0.1f),
+                                        iconTint = PrimaryBlue,
+                                        boxSize = 40.dp,
+                                        iconSize = 22.dp,
+                                        cornerRadius = 12.dp
+                                    )
                                     Spacer(modifier = Modifier.width(12.dp))
                                     Column {
                                         Text(
                                             text = result.subject,
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 15.sp,
-                                            color = Color.White
+                                            color = MaterialTheme.colorScheme.onSurface
                                         )
                                         Spacer(modifier = Modifier.height(2.dp))
                                         val marksObtainedStr = if (result.marksObtained % 1.0 == 0.0) result.marksObtained.toInt().toString() else result.marksObtained.toString()
@@ -338,26 +341,37 @@ fun ResultsScreen(
                                         Text(
                                             text = "Marks: $marksObtainedStr/$maxMarksStr (${result.examType})",
                                             fontSize = 12.sp,
-                                            color = Color.Gray
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                     }
                                 }
                                 
                                 Column(horizontalAlignment = Alignment.End) {
-                                    Text(
-                                        text = "$percentageStr%",
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 16.sp,
+                                    Surface(
+                                        shape = RoundedCornerShape(6.dp),
                                         color = when {
-                                            rawPercentage >= 85 -> Color(0xFF4CAF50)
-                                            rawPercentage >= 50 -> SecondaryGold
-                                            else -> Color(0xFFEF5350)
+                                            rawPercentage >= 80 -> Color(0xFFDCFCE7)
+                                            rawPercentage >= 50 -> Color(0xFFFEF3C7)
+                                            else -> Color(0xFFFEE2E2)
                                         }
-                                    )
+                                    ) {
+                                        Text(
+                                            text = "$percentageStr%",
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 13.sp,
+                                            color = when {
+                                                rawPercentage >= 80 -> Color(0xFF15803D)
+                                                rawPercentage >= 50 -> Color(0xFFB45309)
+                                                else -> Color(0xFFB91C1C)
+                                            },
+                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.height(4.dp))
                                     Text(
                                         text = result.date,
-                                        fontSize = 10.sp,
-                                        color = Color.Gray
+                                        fontSize = 11.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }

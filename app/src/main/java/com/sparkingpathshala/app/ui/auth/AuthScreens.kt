@@ -79,26 +79,40 @@ fun LoginScreen(
                 ) {
                     Spacer(modifier = Modifier.height(12.dp))
                     
-                    // App Logo with Clay style
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_launcher),
-                        contentDescription = "App Logo",
-                        modifier = Modifier
-                            .size(90.dp)
-                            .align(Alignment.CenterHorizontally)
-                    )
+                    // App Logo in Squircle Card
+                    Surface(
+                        modifier = Modifier.size(80.dp),
+                        shape = RoundedCornerShape(20.dp),
+                        color = Color.White,
+                        shadowElevation = 6.dp,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, PrimaryBlue.copy(alpha = 0.18f))
+                    ) {
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize().padding(10.dp)) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_launcher),
+                                contentDescription = "Sparking Pathshala Logo",
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                    }
                     
                     Spacer(modifier = Modifier.height(16.dp))
                     
-                    BrutalistHeader(
+                    Text(
                         text = "Sparking Pathshala",
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        letterSpacing = 0.2.sp,
+                        textAlign = TextAlign.Center
                     )
+                    
+                    Spacer(modifier = Modifier.height(4.dp))
                     
                     Text(
                         text = "Igniting Minds, Empowering Future",
-                        fontSize = 12.sp,
-                        color = Color.Gray,
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Medium,
                         textAlign = TextAlign.Center
                     )
@@ -169,25 +183,20 @@ fun LoginScreen(
                     if (uiState is AuthUiState.Loading) {
                         CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     } else {
-                        NeumorphicButton(
+                        RealisticButton(
                             onClick = { viewModel.login(email.trim(), password.trim()) },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(52.dp),
                             shape = RoundedCornerShape(16.dp)
                         ) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "LOG IN",
-                                    fontSize = 15.sp,
-                                    fontWeight = FontWeight.ExtraBold,
-                                    color = Color.White,
-                                    letterSpacing = 1.sp
-                                )
-                            }
+                            Text(
+                                text = "LOG IN",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White,
+                                letterSpacing = 0.5.sp
+                            )
                         }
                     }
 
@@ -373,25 +382,40 @@ fun SignupScreen(
                 ) {
                     Spacer(modifier = Modifier.height(12.dp))
                     
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_launcher),
-                        contentDescription = "App Logo",
-                        modifier = Modifier
-                            .size(80.dp)
-                            .align(Alignment.CenterHorizontally)
-                    )
+                    // App Logo in Squircle Card
+                    Surface(
+                        modifier = Modifier.size(76.dp),
+                        shape = RoundedCornerShape(20.dp),
+                        color = Color.White,
+                        shadowElevation = 6.dp,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, PrimaryBlue.copy(alpha = 0.18f))
+                    ) {
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize().padding(10.dp)) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_launcher),
+                                contentDescription = "Sparking Pathshala Logo",
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                    }
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(14.dp))
 
-                    BrutalistHeader(
+                    Text(
                         text = "Create Account",
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        letterSpacing = 0.2.sp,
+                        textAlign = TextAlign.Center
                     )
+                    
+                    Spacer(modifier = Modifier.height(4.dp))
                     
                     Text(
                         text = "Join Sparking Pathshala's Digital Portal",
-                        fontSize = 12.sp,
-                        color = Color.Gray,
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Medium,
                         textAlign = TextAlign.Center
                     )
@@ -434,15 +458,15 @@ fun SignupScreen(
                     Box(modifier = Modifier.fillMaxWidth()) {
                         val isDark = LocalThemeIsDark.current
                         val dropdownBg = if (isDark) Color(0xFF1E293B) else Color(0xFFF8FAFC)
-                        val dropdownBorder = if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0)
+                        val dropdownBorder = if (isDark) Color(0xFF334155) else Color(0xFFCBD5E1)
                         val textColor = if (isDark) Color(0xFFF8FAFC) else Color(0xFF0F172A)
 
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(52.dp)
-                                .background(dropdownBg, RoundedCornerShape(12.dp))
-                                .border(1.5.dp, dropdownBorder, RoundedCornerShape(12.dp))
+                                .background(dropdownBg, RoundedCornerShape(14.dp))
+                                .border(1.dp, dropdownBorder, RoundedCornerShape(14.dp))
                                 .clickable { expandedClassMenu = true }
                                 .padding(horizontal = 14.dp),
                             verticalAlignment = Alignment.CenterVertically,
@@ -618,7 +642,7 @@ fun SignupScreen(
                     if (uiState is AuthUiState.Loading) {
                         CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     } else {
-                        NeumorphicButton(
+                        RealisticButton(
                             onClick = {
                                 val cleanName = name.trim()
                                 val cleanEmail = email.trim()
@@ -627,17 +651,17 @@ fun SignupScreen(
                                 val cleanClass = classLevel.trim()
                                 if (cleanName.isBlank() || cleanEmail.isBlank() || cleanMobile.isBlank() || cleanPassword.isBlank()) {
                                     android.widget.Toast.makeText(context, "Please fill in all fields", android.widget.Toast.LENGTH_SHORT).show()
-                                    return@NeumorphicButton
+                                    return@RealisticButton
                                 }
                                 if (cleanPassword.length < 8) {
                                     android.widget.Toast.makeText(context, "Password must be at least 8 characters long", android.widget.Toast.LENGTH_LONG).show()
-                                    return@NeumorphicButton
+                                    return@RealisticButton
                                 }
                                 val hasLetter = cleanPassword.any { it.isLetter() }
                                 val hasDigit = cleanPassword.any { it.isDigit() }
                                 if (!hasLetter || !hasDigit) {
                                     android.widget.Toast.makeText(context, "Password must contain both letters and numbers", android.widget.Toast.LENGTH_LONG).show()
-                                    return@NeumorphicButton
+                                    return@RealisticButton
                                 }
                                 viewModel.signup(cleanName, cleanEmail, cleanClass, cleanMobile, cleanPassword)
                             },
@@ -647,18 +671,13 @@ fun SignupScreen(
                                 .height(52.dp),
                             shape = RoundedCornerShape(16.dp)
                         ) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "SIGN UP",
-                                    fontSize = 15.sp,
-                                    fontWeight = FontWeight.ExtraBold,
-                                    color = if (consentChecked) Color.White else Color.Gray,
-                                    letterSpacing = 1.sp
-                                )
-                            }
+                            Text(
+                                text = "SIGN UP",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (consentChecked) Color.White else Color.White.copy(alpha = 0.5f),
+                                letterSpacing = 0.5.sp
+                            )
                         }
                     }
 

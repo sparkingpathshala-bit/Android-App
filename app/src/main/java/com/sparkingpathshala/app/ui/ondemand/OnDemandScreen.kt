@@ -42,6 +42,7 @@ import com.sparkingpathshala.app.data.local.isAdmin
 import com.sparkingpathshala.app.data.local.isGuest
 import com.sparkingpathshala.app.security.SecurityUtils
 import com.sparkingpathshala.app.ui.dashboard.DashboardViewModel
+import com.sparkingpathshala.app.ui.common.EmptyStateView
 import com.sparkingpathshala.app.ui.theme.*
 
 sealed interface DoubtView {
@@ -338,36 +339,16 @@ fun DoubtListContent(
             CircularProgressIndicator(color = SecondaryGold)
         }
     } else if (doubts.isEmpty()) {
-        Column(
+        EmptyStateView(
+            icon = Icons.Default.Forum,
+            title = "No Doubts Found",
+            subtitle = if (isAdmin) "All student doubt tickets are cleared!" else "Have a question? Tap the '+' button below to submit a doubt to your faculty.",
+            actionLabel = "Refresh",
+            onAction = onRefresh,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(32.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Icon(Icons.Default.Forum, contentDescription = null, modifier = Modifier.size(64.dp), tint = Color.LightGray)
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "No doubts found.",
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp,
-                color = Color.Gray
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = if (isAdmin) "All student doubt tickets are cleared!" else "Have a question? Tap the '+' button to ask a doubt.",
-                color = Color.Gray,
-                fontSize = 14.sp,
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = onRefresh,
-                colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)
-            ) {
-                Text("Refresh")
-            }
-        }
+                .padding(32.dp)
+        )
     } else {
         LazyColumn(
             modifier = Modifier

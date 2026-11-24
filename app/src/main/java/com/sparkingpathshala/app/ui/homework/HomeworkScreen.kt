@@ -36,6 +36,8 @@ import com.sparkingpathshala.app.ui.theme.PrimaryBlue
 import com.sparkingpathshala.app.ui.theme.SecondaryGold
 import com.sparkingpathshala.app.ui.theme.RealisticButton
 import com.sparkingpathshala.app.ui.theme.RealisticOutlinedButton
+import com.sparkingpathshala.app.ui.theme.SparkingIconBox
+import com.sparkingpathshala.app.ui.common.EmptyStateView
 
 enum class HomeworkSortOption(val title: String) {
     LATEST("Latest First"),
@@ -476,47 +478,16 @@ fun HomeworkScreen(
 
                 // Homework Items List
                 if (paginatedList.isEmpty()) {
-                    Box(
+                    EmptyStateView(
+                        icon = if (filterDownloadedOnly) Icons.Default.CloudDownload else Icons.Default.AssignmentLate,
+                        title = if (filterDownloadedOnly) "No Downloaded Homework" else "No Homework Found",
+                        subtitle = if (filterDownloadedOnly) "Download homework assignments to view and solve them offline anytime." else if (searchQuery.isNotEmpty()) "Try changing your search terms or class filters." else if (isAdmin) "No assignments created yet. Tap below to upload one." else "No homework uploaded for $userClass yet. Check back soon!",
+                        actionLabel = if (isAdmin && !filterDownloadedOnly) "Add Homework Now" else null,
+                        onAction = if (isAdmin && !filterDownloadedOnly) { { showUploadDialog = true } } else null,
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(32.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(
-                                imageVector = Icons.Default.AssignmentLate,
-                                contentDescription = null,
-                                modifier = Modifier.size(56.dp),
-                                tint = Color.Gray.copy(alpha = 0.5f)
-                            )
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Text(
-                                text = if (filterDownloadedOnly) "No downloaded homework" else "No homework found",
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.Gray
-                            )
-                            Text(
-                                text = if (filterDownloadedOnly) "Download homework assignments to view them offline anytime." else if (searchQuery.isNotEmpty()) "Try changing your search or filters" else if (isAdmin) "No assignments created yet. Tap below to upload one." else "No assignments uploaded for $userClass yet",
-                                fontSize = 13.sp,
-                                color = Color.Gray,
-                                modifier = Modifier.padding(top = 4.dp),
-                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                            )
-                            if (isAdmin && !filterDownloadedOnly) {
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Button(
-                                    onClick = { showUploadDialog = true },
-                                    colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue),
-                                    shape = RoundedCornerShape(12.dp)
-                                ) {
-                                    Icon(Icons.Default.Add, contentDescription = null)
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Add Homework Now", fontWeight = FontWeight.Bold)
-                                }
-                            }
-                        }
-                    }
+                            .padding(horizontal = 24.dp, vertical = 32.dp)
+                    )
                 } else {
                     val uniquePaginatedList = remember(paginatedList) {
                         paginatedList.distinctBy { it.id }
@@ -820,8 +791,9 @@ fun HomeworkCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onView() },
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {

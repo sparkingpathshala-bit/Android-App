@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.HowToReg
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sparkingpathshala.app.data.remote.PendingStudentInfo
 import com.sparkingpathshala.app.ui.dashboard.DashboardViewModel
+import com.sparkingpathshala.app.ui.common.EmptyStateView
 import com.sparkingpathshala.app.ui.theme.PrimaryBlue
 import com.sparkingpathshala.app.ui.theme.SecondaryGold
 
@@ -99,18 +101,14 @@ fun AdminApprovalsScreen(
 
                     if (pendingStudents.isEmpty()) {
                         item {
-                            Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                            ) {
-                                Box(
-                                    modifier = Modifier.fillMaxWidth().padding(24.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(text = "No pending applications at this time.", color = Color.Gray, fontSize = 13.sp)
-                                }
-                            }
+                            EmptyStateView(
+                                icon = Icons.Default.HowToReg,
+                                title = "No Pending Approvals",
+                                subtitle = "All student registrations have been reviewed.",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 16.dp)
+                            )
                         }
                     } else {
                         items(pendingStudents, key = { it.id }, contentType = { "pending_student" }) { student ->

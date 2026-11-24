@@ -12,6 +12,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -26,6 +27,7 @@ import com.sparkingpathshala.app.data.local.isAdmin
 import com.sparkingpathshala.app.data.remote.AdminRecord
 import com.sparkingpathshala.app.data.remote.AdminStudentInfo
 import com.sparkingpathshala.app.ui.dashboard.DashboardViewModel
+import com.sparkingpathshala.app.ui.common.EmptyStateView
 import com.sparkingpathshala.app.ui.theme.PrimaryBlue
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -361,9 +363,20 @@ fun AdminRecordsScreen(
                     CircularProgressIndicator(color = PrimaryBlue)
                 }
             } else if (filteredRecords.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(text = "No records found for selected filters.", color = Color.Gray)
-                }
+                EmptyStateView(
+                    icon = Icons.AutoMirrored.Filled.ReceiptLong,
+                    title = "No Records Found",
+                    subtitle = "No records match current search or class filters.",
+                    actionLabel = "Add Record",
+                    onAction = {
+                        editingRecord = null
+                        showAddDialog = true
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .padding(24.dp)
+                )
             } else {
                 LazyColumn(
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
@@ -492,8 +505,9 @@ fun RecordItemRow(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onEdit() },
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(

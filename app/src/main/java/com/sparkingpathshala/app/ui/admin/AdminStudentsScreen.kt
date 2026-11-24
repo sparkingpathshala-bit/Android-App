@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sparkingpathshala.app.data.remote.AdminStudentInfo
 import com.sparkingpathshala.app.ui.dashboard.DashboardViewModel
+import com.sparkingpathshala.app.ui.common.EmptyStateView
 import com.sparkingpathshala.app.ui.theme.PrimaryBlue
 import com.sparkingpathshala.app.ui.theme.SecondaryGold
 
@@ -172,9 +173,16 @@ fun AdminStudentsScreen(
                         CircularProgressIndicator(color = PrimaryBlue)
                     }
                 } else if (filteredStudents.isEmpty()) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("No students found.", color = Color.Gray, fontSize = 14.sp)
-                    }
+                    EmptyStateView(
+                        icon = Icons.Default.PersonSearch,
+                        title = "No Students Found",
+                        subtitle = "Try adjusting your search query or class filter.",
+                        actionLabel = "Add Student",
+                        onAction = { showAddDialog = true },
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(24.dp)
+                    )
                 } else {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),

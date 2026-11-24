@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -33,6 +34,8 @@ import com.sparkingpathshala.app.ui.theme.BrandGradient
 import com.sparkingpathshala.app.ui.theme.RealisticButton
 import com.sparkingpathshala.app.ui.theme.RealisticOutlinedButton
 import com.sparkingpathshala.app.ui.theme.RealisticTactileIconButton
+import com.sparkingpathshala.app.ui.theme.SparkingIconBox
+import com.sparkingpathshala.app.ui.common.EmptyStateView
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -402,19 +405,14 @@ fun StudyMaterialScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         if (filteredAndSortedMaterials.isEmpty()) {
-            Box(
+            EmptyStateView(
+                icon = if (filterDownloadedOnly) Icons.Default.CloudDownload else Icons.AutoMirrored.Filled.MenuBook,
+                title = if (filterDownloadedOnly) "No Downloaded Files" else "No Materials Found",
+                subtitle = if (filterDownloadedOnly) "Tap Download on any study material to access and read it offline anytime." else "Try adjusting your search terms or filters to find study guides and notes.",
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(24.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = if (filterDownloadedOnly) "No downloaded materials found.\nTap Download on any study material to access it offline." else "No materials available with this filter.",
-                    color = Color.Gray,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                    lineHeight = 20.sp
-                )
-            }
+                    .padding(horizontal = 24.dp, vertical = 32.dp)
+            )
         } else {
             LazyColumn(
                 modifier = Modifier
@@ -549,8 +547,9 @@ fun MaterialCardItem(
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -566,24 +565,24 @@ fun MaterialCardItem(
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Surface(
-                            shape = RoundedCornerShape(4.dp),
-                            color = Color(0xFFE3F2FD),
+                            shape = RoundedCornerShape(6.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
                             modifier = Modifier.wrapContentSize()
                         ) {
                             Text(
                                 text = material.subject.uppercase(),
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = PrimaryBlue,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp)
                             )
                         }
  
                         if (material.category.equals("premium-material", ignoreCase = true)) {
                             Surface(
-                                shape = RoundedCornerShape(4.dp),
-                                color = Color(0xFFFFF3E0),
-                                border = androidx.compose.foundation.BorderStroke(1.dp, SecondaryGold),
+                                shape = RoundedCornerShape(6.dp),
+                                color = Color(0xFFFEF3C7),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF59E0B)),
                                 modifier = Modifier.wrapContentSize()
                             ) {
                                 Row(
@@ -593,15 +592,15 @@ fun MaterialCardItem(
                                     Icon(
                                         imageVector = Icons.Default.Star,
                                         contentDescription = null,
-                                        tint = SecondaryGold,
-                                        modifier = Modifier.size(10.dp)
+                                        tint = Color(0xFFD97706),
+                                        modifier = Modifier.size(11.dp)
                                     )
                                     Spacer(modifier = Modifier.width(3.dp))
                                     Text(
                                         text = "PREMIUM",
                                         fontSize = 10.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = SecondaryGold
+                                        color = Color(0xFFB45309)
                                     )
                                 }
                             }
@@ -620,12 +619,15 @@ fun MaterialCardItem(
                     )
                 }
                 
-                // Icon
-                Icon(
-                    imageVector = Icons.Default.Book,
-                    contentDescription = null,
-                    tint = SecondaryGold,
-                    modifier = Modifier.padding(start = 8.dp)
+                // Icon Box
+                Spacer(modifier = Modifier.width(8.dp))
+                SparkingIconBox(
+                    icon = Icons.AutoMirrored.Filled.MenuBook,
+                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+                    iconTint = MaterialTheme.colorScheme.primary,
+                    boxSize = 40.dp,
+                    iconSize = 22.dp,
+                    cornerRadius = 12.dp
                 )
             }
             
@@ -658,34 +660,33 @@ fun MaterialCardItem(
                     color = if (isActuallyDownloaded) Color(0xFF2E7D32) else Color.Gray
                 )
                 
-                Row {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     if (isActuallyDownloaded) {
                         IconButton(onClick = onDelete) {
-                            Icon(Icons.Default.Delete, contentDescription = "Delete File", tint = Color.Red)
+                            Icon(Icons.Default.DeleteOutline, contentDescription = "Delete File", tint = MaterialTheme.colorScheme.error)
                         }
-                        Button(
+                        Spacer(modifier = Modifier.width(4.dp))
+                        RealisticButton(
                             onClick = onView,
-                            colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue),
-                            shape = RoundedCornerShape(8.dp)
+                            shape = RoundedCornerShape(10.dp),
+                            modifier = Modifier.height(36.dp)
                         ) {
                             Icon(Icons.Default.FolderOpen, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Open", fontSize = 12.sp)
+                            Text("Open", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         }
                     } else {
                         if (isDownloading) {
-                            CircularProgressIndicator(modifier = Modifier.size(28.dp), color = SecondaryGold)
+                            CircularProgressIndicator(modifier = Modifier.size(28.dp), color = PrimaryBlue)
                         } else {
-                            Button(
-                                onClick = {
-                                    onDownload()
-                                },
-                                colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue),
-                                shape = RoundedCornerShape(8.dp)
+                            RealisticButton(
+                                onClick = onDownload,
+                                shape = RoundedCornerShape(10.dp),
+                                modifier = Modifier.height(36.dp)
                             ) {
                                 Icon(Icons.Default.FileDownload, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text(if (isGuest) "Download" else "Download", fontSize = 12.sp)
+                                Text("Download", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }

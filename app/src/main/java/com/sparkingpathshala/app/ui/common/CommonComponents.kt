@@ -1,5 +1,6 @@
 package com.sparkingpathshala.app.ui.common
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -18,10 +19,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sparkingpathshala.app.ui.theme.PrimaryBlue
 import com.sparkingpathshala.app.ui.theme.SecondaryGold
+import com.sparkingpathshala.app.ui.theme.RealisticButton
+import com.sparkingpathshala.app.ui.theme.RealisticOutlinedButton
+import com.sparkingpathshala.app.ui.theme.SparkingIconBox
 import com.sparkingpathshala.app.utils.AppConstants
+import androidx.compose.material.icons.filled.WarningAmber
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.DeleteForever
 
 /**
- * Standard confirmation dialog for logging out.
+ * Standard confirmation dialog for logging out with modern human craft.
  */
 @Composable
 fun LogoutConfirmationDialog(
@@ -32,9 +39,35 @@ fun LogoutConfirmationDialog(
     if (!show) return
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Log Out?", fontWeight = FontWeight.Bold, color = PrimaryBlue) },
+        shape = RoundedCornerShape(22.dp),
+        containerColor = MaterialTheme.colorScheme.surface,
+        icon = {
+            SparkingIconBox(
+                icon = Icons.AutoMirrored.Filled.Logout,
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                iconTint = MaterialTheme.colorScheme.error,
+                boxSize = 48.dp,
+                iconSize = 24.dp,
+                cornerRadius = 16.dp
+            )
+        },
+        title = {
+            Text(
+                "Log Out of Account",
+                fontWeight = FontWeight.Bold,
+                fontSize = 19.sp,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center
+            )
+        },
         text = {
-            Text("Are you sure you want to log out of Sparking Pathshala?")
+            Text(
+                "Are you sure you want to log out? You will need to sign in again to access your live quizzes, homework, and study material.",
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                lineHeight = 20.sp,
+                textAlign = TextAlign.Center
+            )
         },
         confirmButton = {
             Button(
@@ -42,14 +75,18 @@ fun LogoutConfirmationDialog(
                     onDismiss()
                     onConfirm()
                 },
+                shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
             ) {
-                Text("Log Out", color = Color.White)
+                Text("Log Out", fontWeight = FontWeight.Bold, color = Color.White)
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel", color = Color.Gray)
+            TextButton(
+                onClick = onDismiss,
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Keep Signed In", color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.SemiBold)
             }
         }
     )
@@ -67,9 +104,35 @@ fun DeleteAccountConfirmationDialog(
     if (!show) return
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Delete Account?", fontWeight = FontWeight.Bold, color = PrimaryBlue) },
+        shape = RoundedCornerShape(22.dp),
+        containerColor = MaterialTheme.colorScheme.surface,
+        icon = {
+            SparkingIconBox(
+                icon = Icons.Default.DeleteForever,
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                iconTint = MaterialTheme.colorScheme.error,
+                boxSize = 48.dp,
+                iconSize = 24.dp,
+                cornerRadius = 16.dp
+            )
+        },
+        title = {
+            Text(
+                "Delete Account Permanently?",
+                fontWeight = FontWeight.Bold,
+                fontSize = 19.sp,
+                color = MaterialTheme.colorScheme.error,
+                textAlign = TextAlign.Center
+            )
+        },
         text = {
-            Text("Warning: Deleting your account will permanently remove your student records, fees status, test scores, attendance, and doubt tickets. This action cannot be undone.")
+            Text(
+                "This action cannot be undone. All your student records, fees history, test scores, homework submissions, and doubts will be permanently removed.",
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                lineHeight = 20.sp,
+                textAlign = TextAlign.Center
+            )
         },
         confirmButton = {
             Button(
@@ -77,14 +140,15 @@ fun DeleteAccountConfirmationDialog(
                     onDismiss()
                     onConfirm()
                 },
+                shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
             ) {
-                Text("Delete permanently", color = Color.White)
+                Text("Delete permanently", fontWeight = FontWeight.Bold, color = Color.White)
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel", color = Color.Gray)
+            TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
+                Text("Cancel", color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.SemiBold)
             }
         }
     )
@@ -106,24 +170,53 @@ fun ConfirmActionDialog(
     if (!show) return
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = title, fontWeight = FontWeight.Bold, color = PrimaryBlue) },
-        text = { Text(text = message, fontSize = 14.sp) },
+        shape = RoundedCornerShape(22.dp),
+        containerColor = MaterialTheme.colorScheme.surface,
+        icon = {
+            SparkingIconBox(
+                icon = Icons.Default.WarningAmber,
+                containerColor = if (isDestructive) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer,
+                iconTint = if (isDestructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                boxSize = 48.dp,
+                iconSize = 24.dp,
+                cornerRadius = 16.dp
+            )
+        },
+        title = {
+            Text(
+                text = title,
+                fontWeight = FontWeight.Bold,
+                fontSize = 19.sp,
+                color = if (isDestructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center
+            )
+        },
+        text = {
+            Text(
+                text = message,
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                lineHeight = 20.sp,
+                textAlign = TextAlign.Center
+            )
+        },
         confirmButton = {
             Button(
                 onClick = {
                     onDismiss()
                     onConfirm()
                 },
+                shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isDestructive) MaterialTheme.colorScheme.error else PrimaryBlue
+                    containerColor = if (isDestructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
                 )
             ) {
-                Text(confirmLabel, color = Color.White)
+                Text(confirmLabel, fontWeight = FontWeight.Bold, color = Color.White)
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel", color = Color.Gray)
+            TextButton(onClick = onDismiss, shape = RoundedCornerShape(12.dp)) {
+                Text("Cancel", color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.SemiBold)
             }
         }
     )
@@ -170,32 +263,43 @@ fun ClassSelectorChipsRow(
 }
 
 /**
- * Reusable Empty State Placeholder.
+ * Reusable Empty State Placeholder with Human-Crafted Visual Warmth.
  */
 @Composable
 fun EmptyStateView(
     title: String,
     subtitle: String? = null,
     icon: ImageVector = Icons.Default.Inbox,
+    actionLabel: String? = null,
+    onActionClick: (() -> Unit)? = null,
+    onAction: (() -> Unit)? = null,
     modifier: Modifier = Modifier.fillMaxWidth().padding(32.dp)
 ) {
+    val finalAction = onAction ?: onActionClick
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier.size(56.dp),
-            tint = Color.Gray.copy(alpha = 0.6f)
-        )
-        Spacer(modifier = Modifier.height(12.dp))
+        Box(
+            modifier = Modifier
+                .size(72.dp)
+                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f), RoundedCornerShape(24.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(34.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = title,
             fontWeight = FontWeight.Bold,
-            fontSize = 16.sp,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+            fontSize = 17.sp,
+            color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center
         )
         if (!subtitle.isNullOrBlank()) {
@@ -203,9 +307,21 @@ fun EmptyStateView(
             Text(
                 text = subtitle,
                 fontSize = 13.sp,
-                color = Color.Gray,
-                textAlign = TextAlign.Center
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                lineHeight = 18.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 16.dp)
             )
+        }
+        if (!actionLabel.isNullOrBlank() && finalAction != null) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = finalAction,
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            ) {
+                Text(actionLabel, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+            }
         }
     }
 }

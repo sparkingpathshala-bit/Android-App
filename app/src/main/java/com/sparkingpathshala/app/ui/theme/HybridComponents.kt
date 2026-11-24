@@ -16,6 +16,7 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.Spring
 import androidx.compose.foundation.text.BasicTextField
@@ -74,32 +75,106 @@ fun AnimatedGradientBackground(
 }
 
 /**
- * 1. GlassCard (Premium Bento Translucent Card with Glowing Border)
+ * 1. GlassCard (Clean Surface Card with Hairline Border and Soft Ambient Shadow)
  */
 @Composable
 fun GlassCard(
     modifier: Modifier = Modifier,
-    cornerRadius: Dp = 16.dp,
+    cornerRadius: Dp = 18.dp,
     borderWidth: Dp = 1.dp,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val cardBg = MaterialTheme.colorScheme.surface
-    val borderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)
-    val shadowColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
+    val borderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)
+    val shadowColor = Color.Black.copy(alpha = 0.04f)
 
     Column(
         modifier = modifier
             .shadow(
-                elevation = 4.dp,
+                elevation = 2.dp,
                 shape = RoundedCornerShape(cornerRadius),
                 ambientColor = shadowColor,
                 spotColor = shadowColor
             )
             .background(cardBg, RoundedCornerShape(cornerRadius))
             .border(borderWidth, borderColor, RoundedCornerShape(cornerRadius))
-            .padding(16.dp),
+            .padding(18.dp),
         content = content
     )
+}
+
+/**
+ * SparkingIconBox:
+ * Clean, consistent contextual icon container with smooth rounded squircle corners.
+ */
+@Composable
+fun SparkingIconBox(
+    icon: ImageVector,
+    contentDescription: String? = null,
+    modifier: Modifier = Modifier,
+    containerColor: Color = MaterialTheme.colorScheme.primaryContainer,
+    iconTint: Color = MaterialTheme.colorScheme.primary,
+    boxSize: Dp = 44.dp,
+    iconSize: Dp = 22.dp,
+    cornerRadius: Dp = 14.dp
+) {
+    Box(
+        modifier = modifier
+            .size(boxSize)
+            .background(containerColor, RoundedCornerShape(cornerRadius)),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = iconTint,
+            modifier = Modifier.size(iconSize)
+        )
+    }
+}
+
+/**
+ * SparkingPulseDot:
+ * Elegant ambient breathing pulse dot for live statuses and active sessions.
+ */
+@Composable
+fun SparkingPulseDot(
+    modifier: Modifier = Modifier,
+    color: Color = ModernEmerald,
+    size: Dp = 8.dp
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "pulseDot")
+    val scale by infiniteTransition.animateFloat(
+        initialValue = 0.85f,
+        targetValue = 1.35f,
+        animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+            animation = androidx.compose.animation.core.tween(1000, easing = androidx.compose.animation.core.FastOutSlowInEasing),
+            repeatMode = androidx.compose.animation.core.RepeatMode.Reverse
+        ),
+        label = "pulseScale"
+    )
+    val alpha by infiniteTransition.animateFloat(
+        initialValue = 0.9f,
+        targetValue = 0.3f,
+        animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+            animation = androidx.compose.animation.core.tween(1000, easing = androidx.compose.animation.core.FastOutSlowInEasing),
+            repeatMode = androidx.compose.animation.core.RepeatMode.Reverse
+        ),
+        label = "pulseAlpha"
+    )
+
+    Box(modifier = modifier.size(size * 2), contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier
+                .size(size * scale)
+                .background(color.copy(alpha = alpha), CircleShape)
+        )
+        Box(
+            modifier = Modifier
+                .size(size)
+                .background(color, CircleShape)
+        )
+    }
 }
 
 /**
@@ -195,9 +270,9 @@ fun RealisticButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     containerGradient: Brush = Brush.verticalGradient(
-        colors = listOf(Color(0xFFEA580C), Color(0xFFC2410C), Color(0xFF9A3412))
+        colors = listOf(Color(0xFF2563EB), Color(0xFF1D4ED8))
     ),
-    shape: Shape = RoundedCornerShape(14.dp),
+    shape: Shape = RoundedCornerShape(16.dp),
     contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 14.dp),
     content: @Composable RowScope.() -> Unit
 ) {
@@ -214,7 +289,7 @@ fun RealisticButton(
     )
 
     val elevation by animateDpAsState(
-        targetValue = if (isPressed) 2.dp else 6.dp,
+        targetValue = if (isPressed) 1.dp else 4.dp,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioNoBouncy,
             stiffness = Spring.StiffnessMedium
@@ -222,8 +297,8 @@ fun RealisticButton(
         label = "realistic_btn_elevation"
     )
 
-    val shadowColor = Color(0xFFC2410C).copy(alpha = if (enabled) 0.35f else 0.08f)
-    val groundShadow = Color.Black.copy(alpha = if (enabled) 0.20f else 0.04f)
+    val shadowColor = Color(0xFF1D4ED8).copy(alpha = if (enabled) 0.28f else 0.05f)
+    val groundShadow = Color.Black.copy(alpha = if (enabled) 0.15f else 0.03f)
 
     val activeGradient = if (enabled) containerGradient else Brush.verticalGradient(
         listOf(Color(0xFF94A3B8), Color(0xFF64748B))
@@ -231,11 +306,11 @@ fun RealisticButton(
 
     val topBevelBorder = if (enabled) {
         BorderStroke(
-            1.2.dp,
+            1.dp,
             Brush.verticalGradient(
                 colors = listOf(
-                    Color.White.copy(alpha = 0.45f),
-                    Color.White.copy(alpha = 0.08f)
+                    Color.White.copy(alpha = 0.35f),
+                    Color.White.copy(alpha = 0.05f)
                 )
             )
         )
@@ -682,26 +757,29 @@ fun NeumorphicTextField(
 }
 
 /**
- * 5. ClayBadge (Vibrant Amber/Coral Capsule)
+ * 5. ClayBadge / SparkingBadge (Human-Crafted Semantic Pill Tag)
  */
 @Composable
 fun ClayBadge(
     text: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    containerColor: Color = Color(0xFFFEF3C7),
+    contentColor: Color = Color(0xFF92400E)
 ) {
     Text(
         text = text,
         fontSize = 11.sp,
         fontWeight = FontWeight.Bold,
-        color = Color.White,
+        color = contentColor,
+        letterSpacing = 0.3.sp,
         modifier = modifier
-            .background(GoldGlowGradient, RoundedCornerShape(8.dp))
+            .background(containerColor, RoundedCornerShape(8.dp))
             .padding(horizontal = 10.dp, vertical = 4.dp)
     )
 }
 
 /**
- * 6. ClayFAB (Purple Gradient Floating Action Button)
+ * 6. ClayFAB (Refined Floating Action Button)
  */
 @Composable
 fun ClayFAB(
@@ -709,12 +787,24 @@ fun ClayFAB(
     icon: ImageVector,
     modifier: Modifier = Modifier
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.92f else 1.0f,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
+        label = "fab_scale"
+    )
+
     Box(
         modifier = modifier
             .size(56.dp)
-            .shadow(8.dp, CircleShape, ambientColor = RoyalPurple, spotColor = RoyalPurple)
-            .background(BrandGradient, CircleShape)
-            .clickable { onClick() },
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .shadow(6.dp, CircleShape, ambientColor = PrimaryBlue.copy(alpha = 0.3f), spotColor = Color.Black.copy(alpha = 0.25f))
+            .background(Brush.verticalGradient(listOf(Color(0xFF2563EB), Color(0xFF1D4ED8))), CircleShape)
+            .clickable(interactionSource = interactionSource, indication = null) { onClick() },
         contentAlignment = Alignment.Center
     ) {
         Icon(
@@ -727,7 +817,7 @@ fun ClayFAB(
 }
 
 /**
- * 7. ClayAvatar (Vibrant Monogram Profile Avatar)
+ * 7. ClayAvatar (Polished Monogram Profile Avatar)
  */
 @Composable
 fun ClayAvatar(
@@ -738,8 +828,11 @@ fun ClayAvatar(
     Box(
         modifier = modifier
             .size(size)
-            .background(BrandGradient, CircleShape)
-            .border(2.dp, Color.White, CircleShape),
+            .background(
+                Brush.verticalGradient(listOf(Color(0xFF2563EB), Color(0xFF1E40AF))),
+                CircleShape
+            )
+            .border(1.5.dp, Color.White.copy(alpha = 0.8f), CircleShape),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -752,7 +845,7 @@ fun ClayAvatar(
 }
 
 /**
- * 8. SkeuomorphicReceipt (Receipt Panel)
+ * 8. SkeuomorphicReceipt (Clean Receipt / Billing Panel)
  */
 @Composable
 fun SkeuomorphicReceipt(
@@ -760,20 +853,21 @@ fun SkeuomorphicReceipt(
     content: @Composable ColumnScope.() -> Unit
 ) {
     val isDark = LocalThemeIsDark.current
-    val bg = if (isDark) Color(0xFF151E2E) else Color(0xFFF8FAFC)
-    val border = if (isDark) Color(0xFF243044) else Color(0xFFE2E8F0)
+    val bg = if (isDark) Color(0xFF111827) else Color(0xFFFFFFFF)
+    val border = if (isDark) Color(0xFF1F2937) else Color(0xFFE2E8F0)
 
     Column(
         modifier = modifier
-            .background(bg, RoundedCornerShape(12.dp))
-            .border(1.5.dp, border, RoundedCornerShape(12.dp))
-            .padding(16.dp),
+            .shadow(2.dp, RoundedCornerShape(16.dp), ambientColor = Color.Black.copy(alpha = 0.04f))
+            .background(bg, RoundedCornerShape(16.dp))
+            .border(1.dp, border, RoundedCornerShape(16.dp))
+            .padding(18.dp),
         content = content
     )
 }
 
 /**
- * 9. BrutalistHeader (Decent Typography Header)
+ * 9. BrutalistHeader / SparkingHeader (Human-Centered Typography Header)
  */
 @Composable
 fun BrutalistHeader(
@@ -783,27 +877,28 @@ fun BrutalistHeader(
 ) {
     Text(
         text = text,
-        fontSize = 18.sp,
-        fontWeight = FontWeight.ExtraBold,
+        fontSize = 20.sp,
+        fontWeight = FontWeight.Bold,
         fontFamily = FontFamily.SansSerif,
         color = color,
+        letterSpacing = (-0.2).sp,
         modifier = modifier.padding(vertical = 4.dp)
     )
 }
 
 /**
- * 10. BrutalistDivider (Sleek Colored Separator)
+ * 10. BrutalistDivider (Subtle Hairline Separator)
  */
 @Composable
 fun BrutalistDivider(
     modifier: Modifier = Modifier,
-    color: Color = RoyalPurple
+    color: Color = MaterialTheme.colorScheme.outlineVariant
 ) {
     Spacer(
         modifier = modifier
             .fillMaxWidth()
             .height(1.dp)
-            .background(color.copy(alpha = 0.3f))
+            .background(color.copy(alpha = 0.5f))
     )
 }
 

@@ -26,7 +26,9 @@ import androidx.compose.ui.unit.sp
 import com.sparkingpathshala.app.data.local.NotificationEntity
 import com.sparkingpathshala.app.security.SecurityUtils
 import com.sparkingpathshala.app.ui.dashboard.DashboardViewModel
+import com.sparkingpathshala.app.ui.common.EmptyStateView
 import com.sparkingpathshala.app.ui.theme.PrimaryBlue
+import com.sparkingpathshala.app.ui.theme.SparkingIconBox
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -107,24 +109,14 @@ fun NotificationCenterScreen(
             }
 
             if (filteredNotifications.isEmpty()) {
-                Box(
+                EmptyStateView(
+                    icon = Icons.Default.NotificationsNone,
+                    title = "No Notifications",
+                    subtitle = "Updates on homework, doubts, fees, and test results will appear here.",
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(32.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            imageVector = Icons.Default.NotificationsNone,
-                            contentDescription = null,
-                            modifier = Modifier.size(64.dp),
-                            tint = Color.Gray.copy(alpha = 0.4f)
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text("No notifications", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Gray)
-                        Text("Updates on homework, doubts, fees, and results will appear here.", fontSize = 12.sp, color = Color.Gray, modifier = Modifier.padding(top = 4.dp))
-                    }
-                }
+                        .padding(32.dp)
+                )
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
@@ -174,11 +166,14 @@ fun NotificationCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (notification.isRead) MaterialTheme.colorScheme.surface else PrimaryBlue.copy(alpha = 0.04f)
+            containerColor = if (notification.isRead) MaterialTheme.colorScheme.surface else PrimaryBlue.copy(alpha = 0.05f)
         ),
-        border = if (!notification.isRead) androidx.compose.foundation.BorderStroke(1.dp, PrimaryBlue.copy(alpha = 0.3f)) else null,
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            if (!notification.isRead) PrimaryBlue.copy(alpha = 0.35f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        ),
         elevation = CardDefaults.cardElevation(if (notification.isRead) 1.dp else 2.dp)
     ) {
         Row(
@@ -187,16 +182,15 @@ fun NotificationCard(
                 .padding(14.dp),
             verticalAlignment = Alignment.Top
         ) {
-            // Icon
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(categoryConfig.second.copy(alpha = 0.12f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(categoryConfig.first, contentDescription = null, tint = categoryConfig.second, modifier = Modifier.size(22.dp))
-            }
+            // Squircle Icon Box
+            SparkingIconBox(
+                icon = categoryConfig.first,
+                containerColor = categoryConfig.second.copy(alpha = 0.12f),
+                iconTint = categoryConfig.second,
+                boxSize = 40.dp,
+                iconSize = 22.dp,
+                cornerRadius = 12.dp
+            )
 
             Spacer(modifier = Modifier.width(12.dp))
 

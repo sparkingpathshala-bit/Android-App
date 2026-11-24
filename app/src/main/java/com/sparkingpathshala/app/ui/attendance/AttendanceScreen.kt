@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sparkingpathshala.app.data.local.AttendanceEntity
 import com.sparkingpathshala.app.ui.dashboard.DashboardViewModel
+import com.sparkingpathshala.app.ui.common.EmptyStateView
 import com.sparkingpathshala.app.ui.theme.PrimaryBlue
 
 @Composable
@@ -223,14 +225,14 @@ fun AttendanceScreen(
 
             if (filteredAttendance.isEmpty()) {
                 item {
-                    Box(
+                    EmptyStateView(
+                        icon = Icons.Default.CalendarToday,
+                        title = "No Attendance Records",
+                        subtitle = "No attendance logs have been recorded for ${if (selectedMonth == "All") "this academic session" else formatMonthYear(selectedMonth)} yet.",
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 40.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = "No logs recorded.", color = Color.Gray)
-                    }
+                            .padding(vertical = 32.dp)
+                    )
                 }
             } else {
                 items(filteredAttendance, key = { it.date }, contentType = { "attendance" }) { record ->
@@ -245,9 +247,10 @@ fun AttendanceScreen(
 fun AttendanceItemRow(record: AttendanceEntity) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier
@@ -259,17 +262,17 @@ fun AttendanceItemRow(record: AttendanceEntity) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
-                        .size(36.dp)
+                        .size(38.dp)
                         .background(
-                            color = if (record.isPresent) Color(0xFFE8F5E9) else Color(0xFFFFEBEE),
-                            shape = CircleShape
+                            color = if (record.isPresent) Color(0xFFDCFCE7) else Color(0xFFFEE2E2),
+                            shape = RoundedCornerShape(12.dp)
                         ),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = if (record.isPresent) Icons.Default.CheckCircle else Icons.Default.Warning,
                         contentDescription = null,
-                        tint = if (record.isPresent) Color(0xFF4CAF50) else Color(0xFFF44336),
+                        tint = if (record.isPresent) Color(0xFF16A34A) else Color(0xFFDC2626),
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -282,19 +285,25 @@ fun AttendanceItemRow(record: AttendanceEntity) {
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = record.remarks,
+                        text = record.remarks.ifBlank { if (record.isPresent) "Regular Attendance" else "Absent" },
                         fontSize = 12.sp,
                         color = Color.Gray
                     )
                 }
             }
             
-            Text(
-                text = if (record.isPresent) "PRESENT" else "ABSENT",
-                fontWeight = FontWeight.Bold,
-                fontSize = 12.sp,
-                color = if (record.isPresent) Color(0xFF2E7D32) else Color(0xFFC62828)
-            )
+            Surface(
+                shape = RoundedCornerShape(6.dp),
+                color = if (record.isPresent) Color(0xFFDCFCE7) else Color(0xFFFEE2E2)
+            ) {
+                Text(
+                    text = if (record.isPresent) "PRESENT" else "ABSENT",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 11.sp,
+                    color = if (record.isPresent) Color(0xFF15803D) else Color(0xFFB91C1C),
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                )
+            }
         }
     }
 }

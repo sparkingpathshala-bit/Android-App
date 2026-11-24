@@ -37,6 +37,7 @@ import com.sparkingpathshala.app.data.local.QuizEntity
 import com.sparkingpathshala.app.data.local.isAdmin
 import com.sparkingpathshala.app.data.local.isGuest
 import com.sparkingpathshala.app.ui.dashboard.DashboardViewModel
+import com.sparkingpathshala.app.ui.common.EmptyStateView
 import com.sparkingpathshala.app.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -514,24 +515,14 @@ fun QuizListScreen(
 
             if (filteredAssignedQuizzes.isEmpty()) {
                 item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f)),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 32.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = "No active assigned quizzes at this time.",
-                                color = Color.Gray,
-                                fontSize = 14.sp
-                            )
-                        }
-                    }
+                    EmptyStateView(
+                        icon = Icons.Default.Quiz,
+                        title = "No Quizzes Assigned",
+                        subtitle = "There are no teacher-assigned quizzes for $selectedFilterSubject right now. Test your skills with the practice quiz above!",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 24.dp)
+                    )
                 }
             } else {
                 items(filteredAssignedQuizzes, key = { it.id }, contentType = { "assigned_quiz" }) { quiz ->

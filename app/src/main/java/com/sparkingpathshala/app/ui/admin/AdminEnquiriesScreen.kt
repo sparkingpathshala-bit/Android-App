@@ -12,6 +12,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Comment
+import androidx.compose.material.icons.automirrored.filled.ContactSupport
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sparkingpathshala.app.data.remote.EnquiryInfo
 import com.sparkingpathshala.app.ui.dashboard.DashboardViewModel
+import com.sparkingpathshala.app.ui.common.EmptyStateView
 import com.sparkingpathshala.app.ui.theme.PrimaryBlue
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -185,9 +187,16 @@ fun AdminEnquiriesScreen(
                         CircularProgressIndicator(color = PrimaryBlue)
                     }
                 } else if (filteredEnquiries.isEmpty()) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(text = "No enquiries found.", color = Color.Gray)
-                    }
+                    EmptyStateView(
+                        icon = Icons.AutoMirrored.Filled.ContactSupport,
+                        title = "No Enquiries Found",
+                        subtitle = "Student enquiries submitted through the web portal or app will show up here.",
+                        actionLabel = "Refresh",
+                        onAction = { loadEnquiries(silent = false) },
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(24.dp)
+                    )
                 } else {
                         LazyColumn(
                             contentPadding = PaddingValues(16.dp),

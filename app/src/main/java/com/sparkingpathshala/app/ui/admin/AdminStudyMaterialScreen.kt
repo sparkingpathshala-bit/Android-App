@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.automirrored.filled.NavigateBefore
 import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -37,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import com.sparkingpathshala.app.ui.dashboard.DashboardViewModel
+import com.sparkingpathshala.app.ui.common.EmptyStateView
 import com.sparkingpathshala.app.ui.theme.PrimaryBlue
 import com.sparkingpathshala.app.ui.theme.SecondaryGold
 
@@ -688,12 +690,12 @@ fun AdminStudyMaterialScreen(
                                 shape = RoundedCornerShape(10.dp),
                                 singleLine = true,
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedTextColor = Color.White,
-                                    unfocusedTextColor = Color.White,
-                                    focusedContainerColor = Color(0xFF16161B),
-                                    unfocusedContainerColor = Color(0xFF16161B),
-                                    focusedBorderColor = SecondaryGold,
-                                    unfocusedBorderColor = Color.Gray.copy(alpha = 0.3f)
+                                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                    focusedBorderColor = PrimaryBlue,
+                                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                                 )
                             )
 
@@ -702,11 +704,11 @@ fun AdminStudyMaterialScreen(
                                     onClick = { sortExpanded = true },
                                     contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
                                     shape = RoundedCornerShape(10.dp),
-                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
-                                    border = androidx.compose.foundation.BorderStroke(1.dp, Color.Gray.copy(alpha = 0.4f)),
+                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.onSurface),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                                     modifier = Modifier.height(46.dp)
                                 ) {
-                                    Icon(Icons.Default.FilterList, contentDescription = null, tint = SecondaryGold, modifier = Modifier.size(16.dp))
+                                    Icon(Icons.Default.FilterList, contentDescription = null, tint = PrimaryBlue, modifier = Modifier.size(16.dp))
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(selectedSortOption, fontSize = 11.sp, maxLines = 1)
                                 }
@@ -729,14 +731,15 @@ fun AdminStudyMaterialScreen(
                         }
 
                         if (filteredAndSortedMaterials.isEmpty()) {
-                            Box(
+                            EmptyStateView(
+                                icon = Icons.AutoMirrored.Filled.MenuBook,
+                                title = "No Materials Found",
+                                subtitle = "No study materials match current search or filters.",
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .weight(1f),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text("No study materials match current filters.", color = Color.Gray, fontSize = 14.sp)
-                            }
+                                    .weight(1f)
+                                    .padding(24.dp)
+                            )
                         } else {
                             LazyColumn(
                                 modifier = Modifier
@@ -749,11 +752,11 @@ fun AdminStudyMaterialScreen(
                                     val isPremium = material.category.equals("premium-material", ignoreCase = true)
                                     Card(
                                         modifier = Modifier.fillMaxWidth(),
-                                        shape = RoundedCornerShape(12.dp),
-                                        colors = CardDefaults.cardColors(containerColor = Color(0xFF16161B)),
+                                        shape = RoundedCornerShape(16.dp),
+                                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                                         border = androidx.compose.foundation.BorderStroke(
                                             1.dp,
-                                            if (isPremium) SecondaryGold.copy(alpha = 0.4f) else Color.Gray.copy(alpha = 0.15f)
+                                            if (isPremium) SecondaryGold.copy(alpha = 0.6f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
                                         )
                                     ) {
                                         Row(

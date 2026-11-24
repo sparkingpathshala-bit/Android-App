@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import com.sparkingpathshala.app.data.local.GuestTelemetryEntity
 import com.sparkingpathshala.app.security.SecurityUtils
 import com.sparkingpathshala.app.ui.dashboard.DashboardViewModel
+import com.sparkingpathshala.app.ui.common.EmptyStateView
 import com.sparkingpathshala.app.ui.theme.PrimaryBlue
 import com.sparkingpathshala.app.ui.theme.SecondaryGold
 
@@ -120,9 +121,14 @@ fun AdminGuestUsersScreen(
             )
 
             if (paginatedGuests.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize().padding(32.dp), contentAlignment = Alignment.Center) {
-                    Text("No guest sessions found", color = Color.Gray)
-                }
+                EmptyStateView(
+                    icon = Icons.Default.PersonSearch,
+                    title = "No Guest Sessions Found",
+                    subtitle = "Guest user telemetry will appear here when anonymous users browse the app.",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(32.dp)
+                )
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
@@ -154,9 +160,10 @@ fun AdminGuestUsersScreen(
 fun GuestTelemetryCard(guest: GuestTelemetryEntity) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(1.5.dp)
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+        elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(modifier = Modifier.padding(14.dp)) {
             Row(
