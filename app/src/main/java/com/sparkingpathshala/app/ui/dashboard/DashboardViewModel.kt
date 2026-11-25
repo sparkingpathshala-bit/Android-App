@@ -64,6 +64,16 @@ class DashboardViewModel(private val repository: AppRepository) : ViewModel() {
                     }
                 }
         }
+
+        // Real-time notification polling: checks every 12 seconds so notifications arrive immediately with zero delay
+        viewModelScope.launch {
+            while (true) {
+                if (user.value != null && !user.value.isGuest()) {
+                    runCatching { repository.syncNotifications() }
+                }
+                kotlinx.coroutines.delay(12_000L)
+            }
+        }
     }
 
     fun syncAll() {

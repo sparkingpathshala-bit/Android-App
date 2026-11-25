@@ -41,6 +41,11 @@ fun NotificationCenterScreen(
     val notifications by viewModel.notifications.collectAsState()
     val unreadCount by viewModel.unreadNotificationCount.collectAsState()
 
+    // Immediately fetch latest notifications on opening Notification Center
+    LaunchedEffect(Unit) {
+        viewModel.syncNotifications()
+    }
+
     var selectedTab by remember { mutableIntStateOf(0) } // 0: All, 1: Unread, 2: Alerts
     val tabs = listOf("All (${notifications.size})", "Unread ($unreadCount)", "Alerts")
 

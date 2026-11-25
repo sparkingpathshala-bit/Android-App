@@ -1961,6 +1961,13 @@ class AppRepositoryImpl(
             if (token.isEmpty()) return@withContext Result.success(Unit)
             val res = api.getNotifications(token)
             val entities = res.notifications.map { item ->
+                val time = try {
+                    if (!item.createdAt.isNullOrBlank()) {
+                        java.time.Instant.parse(item.createdAt).toEpochMilli()
+                    } else System.currentTimeMillis()
+                } catch (_: Exception) {
+                    System.currentTimeMillis()
+                }
                 NotificationEntity(
                     id = item.id.toString(),
                     recipientRole = "student",
@@ -1969,7 +1976,8 @@ class AppRepositoryImpl(
                     message = item.message,
                     category = item.type.uppercase(),
                     isRead = item.isRead == 1,
-                    actionRoute = item.linkTab
+                    actionRoute = item.linkTab,
+                    timestamp = time
                 )
             }
             if (entities.isNotEmpty()) {
