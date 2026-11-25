@@ -669,7 +669,8 @@ fun MaterialCardItem(
                         RealisticButton(
                             onClick = onView,
                             shape = RoundedCornerShape(10.dp),
-                            modifier = Modifier.height(36.dp)
+                            modifier = Modifier.height(36.dp),
+                            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)
                         ) {
                             Icon(Icons.Default.FolderOpen, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(6.dp))
@@ -682,7 +683,8 @@ fun MaterialCardItem(
                             RealisticButton(
                                 onClick = onDownload,
                                 shape = RoundedCornerShape(10.dp),
-                                modifier = Modifier.height(36.dp)
+                                modifier = Modifier.height(36.dp),
+                                contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)
                             ) {
                                 Icon(Icons.Default.FileDownload, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(6.dp))

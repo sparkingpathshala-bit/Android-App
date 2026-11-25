@@ -63,12 +63,13 @@ import com.sparkingpathshala.app.ui.homework.AdminHomeworkScreen
 import com.sparkingpathshala.app.ui.notifications.NotificationCenterScreen
 import com.sparkingpathshala.app.ui.guests.AdminGuestUsersScreen
 
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
-        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+        window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.parseColor("#F8FAFC")))
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            window.decorView.isForceDarkAllowed = false
+        }
         // Modern Android 15+ edge-to-edge configuration
         enableEdgeToEdge()
         if (Build.VERSION.SDK_INT >= 35) {
@@ -88,12 +89,14 @@ class MainActivity : ComponentActivity() {
             SparkingPathshalaTheme(darkTheme = false) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = Color(0xFFF8FAFC)
                 ) {
                     val navController = rememberNavController()
+                    val context = androidx.compose.ui.platform.LocalContext.current
+                    val prefs = remember { context.getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE) }
+                    val initialHasUser = remember { prefs.getBoolean("is_logged_in", false) }
                     
                     // Screenshot / screen capture prevention for sensitive data screens
-                    val context = androidx.compose.ui.platform.LocalContext.current
                     DisposableEffect(navController) {
                         val listener = androidx.navigation.NavController.OnDestinationChangedListener { _, destination, _ ->
                             val activity = context as? android.app.Activity
@@ -128,15 +131,10 @@ class MainActivity : ComponentActivity() {
                     val dashboardViewModel: DashboardViewModel = viewModel(factory = factory)
                     val currentUser by authViewModel.currentUser.collectAsState()
 
-                    DisposableEffect(Unit) {
-                        // Dismiss the native OS window splash immediately on frame 1 for instant app launch
-                        splashScreen.setKeepOnScreenCondition { false }
-                        onDispose {}
-                    }
-
                     // Route state checker: redirect authenticated users away from Login/Signup and handle logout
                     LaunchedEffect(currentUser) {
                         if (currentUser != null) {
+                            prefs.edit().putBoolean("is_logged_in", true).apply()
                             val currentRoute = navController.currentDestination?.route
                             if (currentRoute == Screen.Login.route || currentRoute == Screen.Signup.route) {
                                 navController.navigate(Screen.Dashboard.route) {
@@ -144,6 +142,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         } else {
+                            prefs.edit().putBoolean("is_logged_in", false).apply()
                             val currentRoute = navController.currentDestination?.route
                             if (currentRoute != null && currentRoute != Screen.Login.route && currentRoute != Screen.Signup.route) {
                                 navController.navigate(Screen.Login.route) {
@@ -179,31 +178,11 @@ class MainActivity : ComponentActivity() {
                     
                     NavHost(
                         navController = navController,
-                        startDestination = if (currentUser == null) Screen.Login.route else Screen.Dashboard.route,
-                        enterTransition = {
-                            slideInHorizontally(
-                                initialOffsetX = { fullWidth -> (fullWidth * 0.15f).toInt() },
-                                animationSpec = tween(220, easing = FastOutSlowInEasing)
-                            ) + fadeIn(animationSpec = tween(200, easing = FastOutSlowInEasing))
-                        },
-                        exitTransition = {
-                            slideOutHorizontally(
-                                targetOffsetX = { fullWidth -> (-fullWidth * 0.10f).toInt() },
-                                animationSpec = tween(200, easing = FastOutSlowInEasing)
-                            ) + fadeOut(animationSpec = tween(160, easing = FastOutSlowInEasing))
-                        },
-                        popEnterTransition = {
-                            slideInHorizontally(
-                                initialOffsetX = { fullWidth -> (-fullWidth * 0.10f).toInt() },
-                                animationSpec = tween(220, easing = FastOutSlowInEasing)
-                            ) + fadeIn(animationSpec = tween(200, easing = FastOutSlowInEasing))
-                        },
-                        popExitTransition = {
-                            slideOutHorizontally(
-                                targetOffsetX = { fullWidth -> (fullWidth * 0.15f).toInt() },
-                                animationSpec = tween(200, easing = FastOutSlowInEasing)
-                            ) + fadeOut(animationSpec = tween(160, easing = FastOutSlowInEasing))
-                        }
+                        startDestination = if (initialHasUser) Screen.Dashboard.route else Screen.Login.route,
+                        enterTransition = { fadeIn(animationSpec = tween(120, easing = LinearOutSlowInEasing)) },
+                        exitTransition = { fadeOut(animationSpec = tween(90, easing = FastOutLinearInEasing)) },
+                        popEnterTransition = { fadeIn(animationSpec = tween(120, easing = LinearOutSlowInEasing)) },
+                        popExitTransition = { fadeOut(animationSpec = tween(90, easing = FastOutLinearInEasing)) }
                     ) {
                         composable(Screen.Login.route) {
                             LoginScreen(
