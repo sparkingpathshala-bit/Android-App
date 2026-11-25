@@ -63,10 +63,13 @@ import com.sparkingpathshala.app.ui.homework.AdminHomeworkScreen
 import com.sparkingpathshala.app.ui.notifications.NotificationCenterScreen
 import com.sparkingpathshala.app.ui.guests.AdminGuestUsersScreen
 
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
-        window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.parseColor("#F8FAFC")))
+        window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.WHITE))
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             window.decorView.isForceDarkAllowed = false
         }
@@ -75,6 +78,9 @@ class MainActivity : ComponentActivity() {
         if (Build.VERSION.SDK_INT >= 35) {
             window.attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
         }
+        // Hand off OS splash immediately on frame 1 to display the Compose animated splash screen
+        splashScreen.setKeepOnScreenCondition { false }
+
         if (com.sparkingpathshala.app.security.SecurityUtils.detectSecurityThreats(this)) {
             android.util.Log.e("SecurityCheck", "Active debugger or debug build tampering detected. Closing application.")
             android.widget.Toast.makeText(this, "Security alert: Debugging tools detected. Please disable them to run Sparking Pathshala.", android.widget.Toast.LENGTH_LONG).show()
@@ -89,12 +95,18 @@ class MainActivity : ComponentActivity() {
             SparkingPathshalaTheme(darkTheme = false) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = Color(0xFFF8FAFC)
+                    color = Color.White
                 ) {
                     val navController = rememberNavController()
                     val context = androidx.compose.ui.platform.LocalContext.current
                     val prefs = remember { context.getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE) }
                     val initialHasUser = remember { prefs.getBoolean("is_logged_in", false) }
+
+                    var showSplash by remember { mutableStateOf(true) }
+                    LaunchedEffect(Unit) {
+                        kotlinx.coroutines.delay(1200L)
+                        showSplash = false
+                    }
                     
                     // Screenshot / screen capture prevention for sensitive data screens
                     DisposableEffect(navController) {
@@ -175,15 +187,24 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     }
-                    
-                    NavHost(
-                        navController = navController,
-                        startDestination = if (initialHasUser) Screen.Dashboard.route else Screen.Login.route,
-                        enterTransition = { fadeIn(animationSpec = tween(120, easing = LinearOutSlowInEasing)) },
-                        exitTransition = { fadeOut(animationSpec = tween(90, easing = FastOutLinearInEasing)) },
-                        popEnterTransition = { fadeIn(animationSpec = tween(120, easing = LinearOutSlowInEasing)) },
-                        popExitTransition = { fadeOut(animationSpec = tween(90, easing = FastOutLinearInEasing)) }
+
+                    AnimatedVisibility(
+                        visible = showSplash,
+                        enter = fadeIn(tween(150)),
+                        exit = fadeOut(tween(300))
                     ) {
+                        SparkingSplashScreen()
+                    }
+
+                    if (!showSplash) {
+                        NavHost(
+                            navController = navController,
+                            startDestination = if (initialHasUser) Screen.Dashboard.route else Screen.Login.route,
+                            enterTransition = { fadeIn(animationSpec = tween(120, easing = LinearOutSlowInEasing)) },
+                            exitTransition = { fadeOut(animationSpec = tween(90, easing = FastOutLinearInEasing)) },
+                            popEnterTransition = { fadeIn(animationSpec = tween(120, easing = LinearOutSlowInEasing)) },
+                            popExitTransition = { fadeOut(animationSpec = tween(90, easing = FastOutLinearInEasing)) }
+                        ) {
                         composable(Screen.Login.route) {
                             LoginScreen(
                                 viewModel = authViewModel,
@@ -633,5 +654,195 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+}
+
+@Composable
+fun SparkingSplashScreen(modifier: Modifier = Modifier) {
+    val infiniteTransition = rememberInfiniteTransition(label = "SplashHalo")
+    val haloPulse by infiniteTransition.animateFloat(
+        initialValue = 0.94f,
+        targetValue = 1.25f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1400, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "HaloScale"
+    )
+    val haloAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.35f,
+        targetValue = 0.08f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1400, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "HaloAlpha"
+    )
+
+    var startAnimation by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        startAnimation = true
+    }
+
+    val logoScale by animateFloatAsState(
+        targetValue = if (startAnimation) 1f else 0.6f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "LogoScale"
+    )
+    val logoAlpha by animateFloatAsState(
+        targetValue = if (startAnimation) 1f else 0f,
+        animationSpec = tween(durationMillis = 400),
+        label = "LogoAlpha"
+    )
+
+    val contentAlpha by animateFloatAsState(
+        targetValue = if (startAnimation) 1f else 0f,
+        animationSpec = tween(durationMillis = 500, delayMillis = 150),
+        label = "ContentAlpha"
+    )
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFFFFFFFF),
+                        Color(0xFFF8FAFC),
+                        Color(0xFFF1F5F9)
+                    )
+                )
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(horizontal = 32.dp)
+        ) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.size(160.dp)
+            ) {
+                // Radiant Glowing Halo Pulse
+                Box(
+                    modifier = Modifier
+                        .size(140.dp)
+                        .graphicsLayer {
+                            scaleX = haloPulse
+                            scaleY = haloPulse
+                            alpha = haloAlpha
+                        }
+                        .background(
+                            Brush.radialGradient(
+                                colors = listOf(PrimaryBlue.copy(alpha = 0.40f), Color.Transparent)
+                            ),
+                            shape = CircleShape
+                        )
+                )
+
+                // Elevated Squircle Icon Container
+                Surface(
+                    modifier = Modifier
+                        .size(108.dp)
+                        .graphicsLayer {
+                            scaleX = logoScale
+                            scaleY = logoScale
+                            alpha = logoAlpha
+                        },
+                    shape = RoundedCornerShape(26.dp),
+                    color = Color.White,
+                    shadowElevation = 8.dp,
+                    border = androidx.compose.foundation.BorderStroke(
+                        1.5.dp,
+                        Brush.linearGradient(
+                            listOf(
+                                PrimaryBlue.copy(alpha = 0.35f),
+                                Color(0xFFF59E0B).copy(alpha = 0.30f)
+                            )
+                        )
+                    )
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(14.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_launcher),
+                            contentDescription = "Sparking Pathshala Logo",
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(26.dp))
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.graphicsLayer { alpha = contentAlpha }
+            ) {
+                Text(
+                    text = "Sparking Pathshala",
+                    fontSize = 26.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color(0xFF0F172A),
+                    letterSpacing = 0.3.sp,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = PrimaryBlue.copy(alpha = 0.08f),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, PrimaryBlue.copy(alpha = 0.15f))
+                ) {
+                    Text(
+                        text = "Igniting Minds • Empowering Future",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = PrimaryBlue,
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 5.dp),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(40.dp))
+
+                // Modern Pill Progress
+                Box(
+                    modifier = Modifier
+                        .width(112.dp)
+                        .height(4.dp)
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(Color(0xFFE2E8F0))
+                ) {
+                    LinearProgressIndicator(
+                        modifier = Modifier.fillMaxSize(),
+                        color = PrimaryBlue,
+                        trackColor = Color(0xFFE2E8F0)
+                    )
+                }
+            }
+        }
+
+        // Subtitle bottom footer
+        Text(
+            text = "Excellence in Learning",
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color(0xFF94A3B8),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 36.dp)
+        )
+    }
+}
+
 
 
