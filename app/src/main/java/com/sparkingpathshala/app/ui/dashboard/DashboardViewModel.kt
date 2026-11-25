@@ -82,7 +82,9 @@ class DashboardViewModel(private val repository: AppRepository) : ViewModel() {
                     launch { runCatching { repository.syncStudyMaterials() }.onFailure { hasError = true } },
                     launch { runCatching { repository.syncQuizzes() }.onFailure { hasError = true } },
                     launch { runCatching { repository.syncHomework() }.onFailure { hasError = true } },
-                    launch { runCatching { repository.syncNotifications() }.onFailure { hasError = true } }
+                    launch { runCatching { repository.syncNotifications() }.onFailure { hasError = true } },
+                    launch { runCatching { repository.syncAttendance() }.onFailure { hasError = true } },
+                    launch { runCatching { repository.syncResults() }.onFailure { hasError = true } }
                 )
                 jobs.forEach { it.join() }
             }
@@ -521,12 +523,8 @@ class DashboardViewModel(private val repository: AppRepository) : ViewModel() {
 
     val homeworkList: StateFlow<List<HomeworkEntity>> = user
         .flatMapLatest { currentUser ->
-            val classLevel = currentUser?.classLevel ?: "Class 10"
-            if (currentUser.isAdmin()) {
-                repository.getAllHomework()
-            } else {
-                repository.getHomework(classLevel)
-            }
+            // Retrieve all local cached homework and allow UI-level resilient isClassMatch filtering
+            repository.getAllHomework()
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 

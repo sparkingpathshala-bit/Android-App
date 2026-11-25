@@ -113,9 +113,9 @@ fun HomeworkScreen(
             val itemTopic = item.topic ?: ""
 
             val matchesClass = if (isAdmin || isGuest) {
-                selectedClass == "All" || itemClass.equals(selectedClass, ignoreCase = true)
+                selectedClass == "All" || com.sparkingpathshala.app.ui.common.isClassMatch(itemClass, selectedClass)
             } else {
-                itemClass.equals(userClass, ignoreCase = true) || itemClass.equals("All", ignoreCase = true)
+                com.sparkingpathshala.app.ui.common.isClassMatch(itemClass, userClass)
             }
             val matchesSubject = selectedSubject == "All" || itemSubject.equals(selectedSubject, ignoreCase = true)
             val matchesQuery = searchQuery.isBlank() ||

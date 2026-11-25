@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -136,14 +137,21 @@ class MainActivity : ComponentActivity() {
                     }
                     val showSplash = isUserLoading || !splashMinTimeElapsed
 
-                    DisposableEffect(showSplash) {
-                        splashScreen.setKeepOnScreenCondition { showSplash }
+                    DisposableEffect(Unit) {
+                        // Dismiss the native OS window splash immediately so Compose handles the smooth animated entrance
+                        splashScreen.setKeepOnScreenCondition { false }
                         onDispose {}
                     }
 
-                    if (showSplash) {
+                    AnimatedVisibility(
+                        visible = showSplash,
+                        enter = fadeIn(tween(150)),
+                        exit = fadeOut(tween(350))
+                    ) {
                         SparkingSplashScreen()
-                    } else {
+                    }
+
+                    if (!showSplash) {
                         // Route state checker: redirect authenticated users away from Login/Signup and handle logout
                         LaunchedEffect(currentUser) {
                             if (currentUser != null) {
@@ -745,12 +753,15 @@ fun SparkingSplashScreen(modifier: Modifier = Modifier) {
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.size(160.dp)
             ) {
-                // Radiant Halo Pulse
+                // Radiant Halo Pulse (GPU accelerated via graphicsLayer)
                 Box(
                     modifier = Modifier
                         .size(136.dp)
-                        .scale(haloPulse)
-                        .alpha(haloAlpha)
+                        .graphicsLayer {
+                            scaleX = haloPulse
+                            scaleY = haloPulse
+                            alpha = haloAlpha
+                        }
                         .background(
                             Brush.radialGradient(
                                 colors = listOf(PrimaryBlue.copy(alpha = 0.45f), Color.Transparent)
@@ -759,12 +770,15 @@ fun SparkingSplashScreen(modifier: Modifier = Modifier) {
                         )
                 )
 
-                // Elevated Squircle Icon Container
+                // Elevated Squircle Icon Container (GPU accelerated via graphicsLayer)
                 Surface(
                     modifier = Modifier
                         .size(104.dp)
-                        .scale(logoScale)
-                        .alpha(logoAlpha),
+                        .graphicsLayer {
+                            scaleX = logoScale
+                            scaleY = logoScale
+                            alpha = logoAlpha
+                        },
                     shape = RoundedCornerShape(26.dp),
                     color = Color.White,
                     shadowElevation = 8.dp,
@@ -797,7 +811,7 @@ fun SparkingSplashScreen(modifier: Modifier = Modifier) {
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.alpha(contentAlpha)
+                modifier = Modifier.graphicsLayer { alpha = contentAlpha }
             ) {
                 Text(
                     text = "Sparking Pathshala",
@@ -816,9 +830,9 @@ fun SparkingSplashScreen(modifier: Modifier = Modifier) {
                     border = androidx.compose.foundation.BorderStroke(1.dp, PrimaryBlue.copy(alpha = 0.15f))
                 ) {
                     Text(
-                        text = "Ignite Minds • Shape Futures",
+                        text = "Igniting Minds • Empowering Future",
                         fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.SemiBold,
                         color = PrimaryBlue,
                         modifier = Modifier.padding(horizontal = 14.dp, vertical = 5.dp),
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -844,12 +858,12 @@ fun SparkingSplashScreen(modifier: Modifier = Modifier) {
             }
         }
 
-        // Subtitle bottom footer (Official Canva Brand Tagline)
+        // Subtitle bottom footer
         Text(
-            text = "Focused today. Achieving tomorrow. • January 2027 Admissions Open",
+            text = "Excellence in Learning",
             fontSize = 11.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = Color(0xFF64748B),
+            fontWeight = FontWeight.Medium,
+            color = Color(0xFF94A3B8),
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 36.dp)

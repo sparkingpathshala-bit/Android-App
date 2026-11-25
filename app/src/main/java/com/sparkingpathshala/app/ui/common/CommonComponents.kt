@@ -364,3 +364,39 @@ fun CenteredLoadingIndicator(
         }
     }
 }
+
+/**
+ * Resilient class-matching utility to ensure student materials, homework, and quizzes
+ * match seamlessly across standard notations (e.g. "Class 8", "Class 8th", "8th", "8").
+ */
+fun isClassMatch(targetClass: String?, userClass: String?): Boolean {
+    val target = targetClass?.trim() ?: ""
+    val user = userClass?.trim() ?: ""
+    if (target.isEmpty() || user.isEmpty()) return true
+    if (target.equals("All", ignoreCase = true) || target.equals("All Classes", ignoreCase = true)) return true
+    if (user.equals("All", ignoreCase = true) || user.equals("All Classes", ignoreCase = true)) return true
+    if (target.equals(user, ignoreCase = true)) return true
+
+    // Extract digits if present (e.g. "Class 8" vs "8th")
+    val targetDigits = Regex("\\d+").find(target)?.value
+    val userDigits = Regex("\\d+").find(user)?.value
+    if (targetDigits != null && userDigits != null) {
+        return targetDigits == userDigits
+    }
+
+    val cleanTarget = target.lowercase().replace("class", "").replace("th", "").replace("st", "").replace("nd", "").replace("rd", "").trim()
+    val cleanUser = user.lowercase().replace("class", "").replace("th", "").replace("st", "").replace("nd", "").replace("rd", "").trim()
+    return cleanTarget.contains(cleanUser) || cleanUser.contains(cleanTarget)
+}
+
+/**
+ * Recursively calculates file/directory storage size.
+ */
+fun getDirectorySize(dir: java.io.File?): Long {
+    if (dir == null || !dir.exists()) return 0L
+    var size = 0L
+    dir.listFiles()?.forEach { file ->
+        size += if (file.isDirectory) getDirectorySize(file) else file.length()
+    }
+    return size
+}

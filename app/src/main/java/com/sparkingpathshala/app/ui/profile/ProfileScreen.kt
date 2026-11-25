@@ -1,7 +1,6 @@
 package com.sparkingpathshala.app.ui.profile
 
 import android.widget.Toast
-import androidx.core.net.toUri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -30,6 +29,7 @@ import com.sparkingpathshala.app.data.local.isAdmin
 import com.sparkingpathshala.app.data.local.isGuest
 import com.sparkingpathshala.app.ui.dashboard.DashboardViewModel
 import com.sparkingpathshala.app.ui.common.DeleteAccountConfirmationDialog
+import com.sparkingpathshala.app.ui.common.getDirectorySize
 import com.sparkingpathshala.app.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -289,32 +289,6 @@ fun ProfileScreen(
                             }
                         }
                     )
-
-                    HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
-
-                    ListItem(
-                        headlineContent = { Text("Campus Address", fontSize = 14.sp, fontWeight = FontWeight.Medium) },
-                        supportingContent = { Text("Dheeraj Nagar, Atmadpur, Faridabad, Haryana", fontSize = 11.sp) },
-                        leadingContent = { Icon(Icons.Default.LocationOn, contentDescription = null, tint = PrimaryBlue) }
-                    )
-
-                    HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
-
-                    ListItem(
-                        headlineContent = { Text("Campus Admissions Helpline", fontSize = 14.sp, fontWeight = FontWeight.Medium) },
-                        supportingContent = { Text("+91 99994 70824 • Er. Sajjan Kumar Mallik", fontSize = 11.sp) },
-                        leadingContent = { Icon(Icons.Default.Phone, contentDescription = null, tint = PrimaryBlue) },
-                        modifier = Modifier.clickable {
-                            try {
-                                val intent = android.content.Intent(android.content.Intent.ACTION_DIAL).apply {
-                                    data = android.net.Uri.parse("tel:+919999470824")
-                                }
-                                context.startActivity(intent)
-                            } catch (_: Exception) {}
-                        }
-                    )
-
-                    HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
                 }
             }
         } else {
@@ -428,6 +402,24 @@ fun ProfileScreen(
 
             // Offline Cache & Storage Management
             var cacheCleared by remember { mutableStateOf(false) }
+            val calculateRealCacheSize = {
+                try {
+                    val c1 = context.cacheDir?.let { getDirectorySize(it) } ?: 0L
+                    val c2 = context.externalCacheDir?.let { getDirectorySize(it) } ?: 0L
+                    val total = c1 + c2
+                    if (total > 1024 * 1024) {
+                        String.format("%.1f MB cached", total / (1024.0 * 1024.0))
+                    } else if (total > 0) {
+                        String.format("%d KB cached", total / 1024)
+                    } else {
+                        "0 KB cached"
+                    }
+                } catch (_: Exception) {
+                    "0 KB cached"
+                }
+            }
+            var cacheSizeText by remember { mutableStateOf(calculateRealCacheSize()) }
+
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -449,19 +441,31 @@ fun ProfileScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column {
+                        Column(modifier = Modifier.weight(1f)) {
                             Text("Cached DPPs & Solutions", fontSize = 13.sp, fontWeight = FontWeight.Medium)
-                            Text(if (cacheCleared) "0 KB cached" else "24.5 MB offline storage", fontSize = 11.sp, color = Color.Gray)
+                            Text(if (cacheCleared) "0 KB cached" else cacheSizeText, fontSize = 11.sp, color = Color.Gray)
                         }
                         RealisticOutlinedButton(
                             onClick = {
+                                try {
+                                    context.cacheDir?.deleteRecursively()
+                                    context.externalCacheDir?.deleteRecursively()
+                                } catch (_: Exception) {}
                                 cacheCleared = true
-                                Toast.makeText(context, "Offline question cache cleared! 24.5 MB freed.", Toast.LENGTH_SHORT).show()
+                                cacheSizeText = "0 KB cached"
+                                Toast.makeText(context, "Offline question cache cleared successfully!", Toast.LENGTH_SHORT).show()
                             },
                             strokeColor = BrandRuby,
-                            modifier = Modifier.height(38.dp)
+                            modifier = Modifier.height(36.dp),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp)
                         ) {
-                            Text(if (cacheCleared) "Cleared" else "Free Space", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = BrandRuby)
+                            Text(
+                                text = if (cacheCleared) "Cleared ✓" else "Clear Cache",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = BrandRuby,
+                                maxLines = 1
+                            )
                         }
                     }
                 }
@@ -636,32 +640,6 @@ fun ProfileScreen(
                             }
                         }
                     )
-
-                    HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
-
-                    ListItem(
-                        headlineContent = { Text("Campus Address", fontSize = 14.sp, fontWeight = FontWeight.Medium) },
-                        supportingContent = { Text("Dheeraj Nagar, Atmadpur, Faridabad, Haryana", fontSize = 11.sp) },
-                        leadingContent = { Icon(Icons.Default.LocationOn, contentDescription = null, tint = PrimaryBlue) }
-                    )
-
-                    HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
-
-                    ListItem(
-                        headlineContent = { Text("Campus Admissions Helpline", fontSize = 14.sp, fontWeight = FontWeight.Medium) },
-                        supportingContent = { Text("+91 99994 70824 • Er. Sajjan Kumar Mallik", fontSize = 11.sp) },
-                        leadingContent = { Icon(Icons.Default.Phone, contentDescription = null, tint = PrimaryBlue) },
-                        modifier = Modifier.clickable {
-                            try {
-                                val intent = android.content.Intent(android.content.Intent.ACTION_DIAL).apply {
-                                    data = android.net.Uri.parse("tel:+919999470824")
-                                }
-                                context.startActivity(intent)
-                            } catch (_: Exception) {}
-                        }
-                    )
-
-                    HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
 
                     HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
 

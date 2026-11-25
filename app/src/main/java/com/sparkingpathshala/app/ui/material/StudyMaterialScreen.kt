@@ -97,9 +97,9 @@ fun StudyMaterialScreen(
             }
                 
             val matchesClass = if (isAdmin || isGuest) {
-                selectedClass == "All" || material.classLevel.equals(selectedClass, ignoreCase = true)
+                selectedClass == "All" || com.sparkingpathshala.app.ui.common.isClassMatch(material.classLevel, selectedClass)
             } else {
-                material.classLevel.equals(studentClass, ignoreCase = true) || material.classLevel.equals("All", ignoreCase = true)
+                com.sparkingpathshala.app.ui.common.isClassMatch(material.classLevel, studentClass)
             }
                 
             val matchesSubject = selectedSubject == "All" ||

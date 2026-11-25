@@ -146,10 +146,7 @@ fun QuizListScreen(
     val classQuizzes = remember(quizzes, enrolledClass, isGuest) {
         quizzes.filter { 
             if (isGuest) !it.attempted
-            else ((it.classLevel.equals(enrolledClass, ignoreCase = true) || 
-                   it.classLevel.equals("All", ignoreCase = true) || 
-                   it.classLevel.equals("All Classes", ignoreCase = true)) &&
-                  !it.attempted)
+            else (com.sparkingpathshala.app.ui.common.isClassMatch(it.classLevel, enrolledClass) && !it.attempted)
         }
     }
 
