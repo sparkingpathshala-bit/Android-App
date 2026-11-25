@@ -126,109 +126,85 @@ class MainActivity : ComponentActivity() {
                     
                     val authViewModel: AuthViewModel = viewModel(factory = factory)
                     val dashboardViewModel: DashboardViewModel = viewModel(factory = factory)
-                    
-                    val isUserLoading by authViewModel.isUserLoading.collectAsState()
                     val currentUser by authViewModel.currentUser.collectAsState()
 
-                    var splashMinTimeElapsed by remember { mutableStateOf(false) }
-                    LaunchedEffect(Unit) {
-                        kotlinx.coroutines.delay(1000)
-                        splashMinTimeElapsed = true
-                    }
-                    val showSplash = isUserLoading || !splashMinTimeElapsed
-
                     DisposableEffect(Unit) {
-                        // Dismiss the native OS window splash immediately so Compose handles the smooth animated entrance
+                        // Dismiss the native OS window splash immediately on frame 1 for instant app launch
                         splashScreen.setKeepOnScreenCondition { false }
                         onDispose {}
                     }
 
-                    AnimatedVisibility(
-                        visible = showSplash,
-                        enter = fadeIn(tween(150)),
-                        exit = fadeOut(tween(350))
-                    ) {
-                        SparkingSplashScreen()
+                    // Route state checker: redirect authenticated users away from Login/Signup and handle logout
+                    LaunchedEffect(currentUser) {
+                        if (currentUser != null) {
+                            val currentRoute = navController.currentDestination?.route
+                            if (currentRoute == Screen.Login.route || currentRoute == Screen.Signup.route) {
+                                navController.navigate(Screen.Dashboard.route) {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            }
+                        } else {
+                            val currentRoute = navController.currentDestination?.route
+                            if (currentRoute != null && currentRoute != Screen.Login.route && currentRoute != Screen.Signup.route) {
+                                navController.navigate(Screen.Login.route) {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            }
+                        }
                     }
 
-                    if (!showSplash) {
-                        // Route state checker: redirect authenticated users away from Login/Signup and handle logout
-                        LaunchedEffect(currentUser) {
-                            if (currentUser != null) {
-                                val currentRoute = navController.currentDestination?.route
-                                if (currentRoute == Screen.Login.route || currentRoute == Screen.Signup.route) {
-                                    navController.navigate(Screen.Dashboard.route) {
-                                        popUpTo(0) { inclusive = true }
-                                    }
-                                }
-                            } else {
-                                val currentRoute = navController.currentDestination?.route
-                                if (currentRoute != null && currentRoute != Screen.Login.route && currentRoute != Screen.Signup.route) {
-                                    navController.navigate(Screen.Login.route) {
-                                        popUpTo(0) { inclusive = true }
-                                    }
+                    // Centralized 401 Session Expiration listener & Crash Recovery Notification
+                    LaunchedEffect(Unit) {
+                        if (intent.getBooleanExtra("recovered_from_crash", false)) {
+                            android.widget.Toast.makeText(
+                                context,
+                                "Session restored safely.",
+                                android.widget.Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        com.sparkingpathshala.app.core.AuthSessionManager.sessionExpiredEvent.collect {
+                            android.widget.Toast.makeText(
+                                context,
+                                "Your session has expired (7-day security limit). Please log in again.",
+                                android.widget.Toast.LENGTH_LONG
+                            ).show()
+                            val currentRoute = navController.currentDestination?.route
+                            if (currentRoute != Screen.Login.route && currentRoute != Screen.Signup.route) {
+                                navController.navigate(Screen.Login.route) {
+                                    popUpTo(0) { inclusive = true }
                                 }
                             }
                         }
-
-                        // Centralized 401 Session Expiration listener & Crash Recovery Notification
-                        LaunchedEffect(Unit) {
-                            if (intent.getBooleanExtra("recovered_from_crash", false)) {
-                                android.widget.Toast.makeText(
-                                    context,
-                                    "Session restored safely.",
-                                    android.widget.Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                            com.sparkingpathshala.app.core.AuthSessionManager.sessionExpiredEvent.collect {
-                                android.widget.Toast.makeText(
-                                    context,
-                                    "Your session has expired (7-day security limit). Please log in again.",
-                                    android.widget.Toast.LENGTH_LONG
-                                ).show()
-                                val currentRoute = navController.currentDestination?.route
-                                if (currentRoute != Screen.Login.route && currentRoute != Screen.Signup.route) {
-                                    navController.navigate(Screen.Login.route) {
-                                        popUpTo(0) { inclusive = true }
-                                    }
-                                }
-                            }
+                    }
+                    
+                    NavHost(
+                        navController = navController,
+                        startDestination = if (currentUser == null) Screen.Login.route else Screen.Dashboard.route,
+                        enterTransition = {
+                            slideInHorizontally(
+                                initialOffsetX = { fullWidth -> (fullWidth * 0.15f).toInt() },
+                                animationSpec = tween(220, easing = FastOutSlowInEasing)
+                            ) + fadeIn(animationSpec = tween(200, easing = FastOutSlowInEasing))
+                        },
+                        exitTransition = {
+                            slideOutHorizontally(
+                                targetOffsetX = { fullWidth -> (-fullWidth * 0.10f).toInt() },
+                                animationSpec = tween(200, easing = FastOutSlowInEasing)
+                            ) + fadeOut(animationSpec = tween(160, easing = FastOutSlowInEasing))
+                        },
+                        popEnterTransition = {
+                            slideInHorizontally(
+                                initialOffsetX = { fullWidth -> (-fullWidth * 0.10f).toInt() },
+                                animationSpec = tween(220, easing = FastOutSlowInEasing)
+                            ) + fadeIn(animationSpec = tween(200, easing = FastOutSlowInEasing))
+                        },
+                        popExitTransition = {
+                            slideOutHorizontally(
+                                targetOffsetX = { fullWidth -> (fullWidth * 0.15f).toInt() },
+                                animationSpec = tween(200, easing = FastOutSlowInEasing)
+                            ) + fadeOut(animationSpec = tween(160, easing = FastOutSlowInEasing))
                         }
-                        
-                        NavHost(
-                            navController = navController,
-                            startDestination = if (currentUser == null) Screen.Login.route else Screen.Dashboard.route,
-                            enterTransition = {
-                                slideInHorizontally(
-                                    initialOffsetX = { fullWidth -> (fullWidth * 0.22f).toInt() },
-                                    animationSpec = spring(
-                                        dampingRatio = Spring.DampingRatioNoBouncy,
-                                        stiffness = Spring.StiffnessMediumLow
-                                    )
-                                ) + fadeIn(animationSpec = tween(220))
-                            },
-                            exitTransition = {
-                                slideOutHorizontally(
-                                    targetOffsetX = { fullWidth -> (-fullWidth * 0.18f).toInt() },
-                                    animationSpec = tween(200)
-                                ) + fadeOut(animationSpec = tween(180))
-                            },
-                            popEnterTransition = {
-                                slideInHorizontally(
-                                    initialOffsetX = { fullWidth -> (-fullWidth * 0.18f).toInt() },
-                                    animationSpec = spring(
-                                        dampingRatio = Spring.DampingRatioNoBouncy,
-                                        stiffness = Spring.StiffnessMediumLow
-                                    )
-                                ) + fadeIn(animationSpec = tween(220))
-                            },
-                            popExitTransition = {
-                                slideOutHorizontally(
-                                    targetOffsetX = { fullWidth -> (fullWidth * 0.22f).toInt() },
-                                    animationSpec = tween(200)
-                                ) + fadeOut(animationSpec = tween(180))
-                            }
-                        ) {
+                    ) {
                         composable(Screen.Login.route) {
                             LoginScreen(
                                 viewModel = authViewModel,
@@ -287,11 +263,8 @@ class MainActivity : ComponentActivity() {
                                 AnimatedContent(
                                     targetState = currentTab,
                                     transitionSpec = {
-                                        (fadeIn(animationSpec = tween(220, easing = FastOutSlowInEasing)) +
-                                         slideInHorizontally(animationSpec = tween(220, easing = FastOutSlowInEasing)) { width -> if (targetState.ordinal > initialState.ordinal) width / 5 else -width / 5 }
-                                        ).togetherWith(
-                                         fadeOut(animationSpec = tween(180, easing = FastOutSlowInEasing))
-                                        )
+                                        fadeIn(animationSpec = tween(140, easing = LinearOutSlowInEasing))
+                                            .togetherWith(fadeOut(animationSpec = tween(90, easing = FastOutLinearInEasing)))
                                     },
                                     label = "TabSwitchTransition"
                                 ) { activeTab ->
@@ -681,193 +654,5 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-}
 
-@Composable
-fun SparkingSplashScreen(modifier: Modifier = Modifier) {
-    val infiniteTransition = rememberInfiniteTransition(label = "SplashHalo")
-    val haloPulse by infiniteTransition.animateFloat(
-        initialValue = 0.92f,
-        targetValue = 1.30f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1500, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "HaloScale"
-    )
-    val haloAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.30f,
-        targetValue = 0.06f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1500, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "HaloAlpha"
-    )
-
-    var startAnimation by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        startAnimation = true
-    }
-
-    val logoScale by animateFloatAsState(
-        targetValue = if (startAnimation) 1f else 0.50f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = "LogoScale"
-    )
-    val logoAlpha by animateFloatAsState(
-        targetValue = if (startAnimation) 1f else 0f,
-        animationSpec = tween(durationMillis = 400),
-        label = "LogoAlpha"
-    )
-
-    val contentAlpha by animateFloatAsState(
-        targetValue = if (startAnimation) 1f else 0f,
-        animationSpec = tween(durationMillis = 600, delayMillis = 180),
-        label = "ContentAlpha"
-    )
-
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFFF1F5F9),
-                        Color(0xFFF8FAFC),
-                        Color(0xFFFFFFFF)
-                    )
-                )
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(horizontal = 32.dp)
-        ) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.size(160.dp)
-            ) {
-                // Radiant Halo Pulse (GPU accelerated via graphicsLayer)
-                Box(
-                    modifier = Modifier
-                        .size(136.dp)
-                        .graphicsLayer {
-                            scaleX = haloPulse
-                            scaleY = haloPulse
-                            alpha = haloAlpha
-                        }
-                        .background(
-                            Brush.radialGradient(
-                                colors = listOf(PrimaryBlue.copy(alpha = 0.45f), Color.Transparent)
-                            ),
-                            shape = CircleShape
-                        )
-                )
-
-                // Elevated Squircle Icon Container (GPU accelerated via graphicsLayer)
-                Surface(
-                    modifier = Modifier
-                        .size(104.dp)
-                        .graphicsLayer {
-                            scaleX = logoScale
-                            scaleY = logoScale
-                            alpha = logoAlpha
-                        },
-                    shape = RoundedCornerShape(26.dp),
-                    color = Color.White,
-                    shadowElevation = 8.dp,
-                    border = androidx.compose.foundation.BorderStroke(
-                        1.5.dp,
-                        Brush.linearGradient(
-                            listOf(
-                                PrimaryBlue.copy(alpha = 0.25f),
-                                Color(0xFFF59E0B).copy(alpha = 0.20f)
-                            )
-                        )
-                    )
-                ) {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(14.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_launcher),
-                            contentDescription = "Sparking Pathshala Logo",
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.graphicsLayer { alpha = contentAlpha }
-            ) {
-                Text(
-                    text = "Sparking Pathshala",
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = Color(0xFF0F172A),
-                    letterSpacing = 0.3.sp,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Surface(
-                    shape = RoundedCornerShape(12.dp),
-                    color = PrimaryBlue.copy(alpha = 0.08f),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, PrimaryBlue.copy(alpha = 0.15f))
-                ) {
-                    Text(
-                        text = "Igniting Minds • Empowering Future",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = PrimaryBlue,
-                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 5.dp),
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(44.dp))
-
-                // Modern Pill Progress
-                Box(
-                    modifier = Modifier
-                        .width(108.dp)
-                        .height(4.dp)
-                        .clip(RoundedCornerShape(2.dp))
-                        .background(Color(0xFFE2E8F0))
-                ) {
-                    LinearProgressIndicator(
-                        modifier = Modifier.fillMaxSize(),
-                        color = PrimaryBlue,
-                        trackColor = Color(0xFFE2E8F0)
-                    )
-                }
-            }
-        }
-
-        // Subtitle bottom footer
-        Text(
-            text = "Excellence in Learning",
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Medium,
-            color = Color(0xFF94A3B8),
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 36.dp)
-        )
-    }
-}
 
